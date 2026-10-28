@@ -8,6 +8,9 @@ import Work from "@/components/Work";
 import Clients from "@/components/Clients";
 import Book from "@/components/Book";
 import Contact from "@/components/Contact";
+import Faq from "@/components/Faq";
+import JsonLd from "@/components/JsonLd";
+import AgentTools from "@/components/AgentTools";
 
 export default function Home() {
   return (
@@ -25,9 +28,12 @@ export default function Home() {
         <Clients />
         <Band variant="navy" rev dir={-1} style={{ marginTop: -30, marginBottom: -30 }} />
         <Book />
+        <Faq />
         <Contact />
       </main>
       <ScrollEngine />
+      <AgentTools />
+      <JsonLd />
     </>
   );
 }

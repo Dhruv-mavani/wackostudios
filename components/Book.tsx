@@ -21,6 +21,9 @@ const getDays = () => {
   return clientDays;
 };
 const subscribe = () => () => {};
+// Declarative WebMCP attributes (not yet in React's types) that let browser agents discover the form as a tool.
+const WEBMCP_FORM = { toolname: "request_meeting_slot", tooldescription: "Request a free 30 minute intro call with Wacko Studios. Choose a day and time, add name and contact, then submit to get a WhatsApp or email-ready request." };
+const isoDate = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
 export default function Book() {
   const days = useSyncExternalStore(subscribe, getDays, () => NO_DAYS);
@@ -76,7 +79,7 @@ export default function Book() {
               <div className="step">1 · Choose a day</div>
               <div className="days" role="group" aria-label="Choose a day">
                 {days.map((d, i) => (
-                  <button key={i} type="button" className="day" aria-pressed={i === day} onClick={() => { setDay(i); clearErr(); }}>
+                  <button key={i} type="button" className="day" data-date={isoDate(d)} aria-pressed={i === day} onClick={() => { setDay(i); clearErr(); }}>
                     {DN[d.getDay()]}<b>{d.getDate()}</b>{MN[d.getMonth()]}
                   </button>
                 ))}
@@ -84,12 +87,12 @@ export default function Book() {
               <div className="step">2 · Choose a time (IST)</div>
               <div className="slots" role="group" aria-label="Choose a time">
                 {TIMES.map((t, i) => (
-                  <button key={t} type="button" className="slot" aria-pressed={i === time} onClick={() => { setTime(i); clearErr(); }}>{t}</button>
+                  <button key={t} type="button" className="slot" data-time={t} aria-pressed={i === time} onClick={() => { setTime(i); clearErr(); }}>{t}</button>
                 ))}
               </div>
               <p className="pick" aria-live="polite">{pick}</p>
               <div className="step">3 · Your details</div>
-              <form onSubmit={submit} noValidate>
+              <form id="bookForm" onSubmit={submit} noValidate {...WEBMCP_FORM}>
                 <div className="fields">
                   <div><label htmlFor="fName">Name</label><input id="fName" name="name" autoComplete="name" placeholder="Your name" value={form.name} onChange={set("name")} /></div>
                   <div><label htmlFor="fContact">Email or phone</label><input id="fContact" name="contact" autoComplete="email" placeholder="you@brand.com or +91…" value={form.contact} onChange={set("contact")} /></div>
