@@ -1,5 +1,5 @@
 /* ===== EDIT YOUR CONTENT HERE ===== */
-export const SHOW_SAMPLE_TAGS = true; // set to false once real projects and client logos are added
+export const SHOW_SAMPLE_TAGS = true; // set to false once real project samples are added
 
 export const SERVICES = [
   { n: "Content Creation", d: "Reels, shoots and posts built to be watched, saved and shared.", c: ["Reels", "Photography", "Copy"], i: "content" },
@@ -22,7 +22,27 @@ export const WORK = [
   { client: "Client name", title: "Festive ad set", d: "A set of cut-down ads and reels for a seasonal push.", c: ["Creative Ad Campaigns", "Video Editing"], bg: "#E66A2C", fg: "#172033", panel: "#172033", art: "video" },
 ];
 
-export const CLIENTS = Array.from({ length: 12 }, (_, i) => ({ name: "Client " + String(i + 1).padStart(2, "0") }));
+export const CLIENTS = [
+  { name: "Head & Shoulders", logo: "/clients/head-and-shoulders.webp", w: 214, h: 96 },
+  { name: "Red Label Chai", logo: "/clients/red-label-chai.webp", w: 96, h: 96 },
+  { name: "Rapido", logo: "/clients/rapido.webp", w: 180, h: 96 },
+  { name: "Mamaearth", logo: "/clients/mamaearth.webp", w: 164, h: 22 },
+  { name: "Jio Hotstar", logo: "/clients/jio-hotstar.webp", w: 130, h: 96 },
+  { name: "The Solved Skin", logo: "/clients/the-solved-skin.webp", w: 300, h: 86 },
+  { name: "Garnier Men", logo: "/clients/garnier-men.webp", w: 300, h: 50 },
+  { name: "Hajmola", logo: "/clients/hajmola.webp", w: 128, h: 96 },
+  { name: "Bigboss Season 18", logo: "/clients/bigboss-season-18.webp", w: 98, h: 96 },
+  { name: "ChatGPT", logo: "/clients/chatgpt.webp", w: 95, h: 96 },
+  { name: "The Bear House", logo: "/clients/the-bear-house.webp", w: 300, h: 83 },
+  { name: "BruGold Coffee", logo: "/clients/brugold-badge2.webp", w: 153, h: 96 },
+  { name: "Atomberg", logo: "/clients/atomberg.webp", w: 300, h: 69 },
+  { name: "Loyka", logo: "/clients/loyka.webp", w: 300, h: 62 },
+  { name: "DTDC Courier", logo: "/clients/dtdc-courier.webp", w: 300, h: 68 },
+  { name: "UP Warriorz", logo: "/clients/up-warriorz.webp", w: 82, h: 96 },
+  { name: "Zouk", logo: "/clients/zouk.webp", w: 236, h: 78 },
+  { name: "Realme", logo: "/clients/realme.webp", w: 300, h: 90 },
+  { name: "Myntra Creator School", logo: "/clients/myntra-creator-school.webp", w: 294, h: 96 },
+];
 export const TIMES = ["10:00 AM", "11:00 AM", "12:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"];
 
 export const WA = "918733064171";
@@ -30,11 +50,3 @@ export const EMAIL = "wackostudiosindia@gmail.com";
 export const PHONE = "+91 8733064171";
 export const INSTAGRAM_URL = "https://www.instagram.com/wackostudios.in/?hl=en";
 
-export const MARKS: ((c: string) => string)[] = [
-  (c) => `<circle cx="20" cy="20" r="16" fill="${c}"/><circle cx="20" cy="20" r="6" fill="#E66A2C"/>`,
-  (c) => `<rect x="5" y="5" width="30" height="30" rx="8" fill="${c}"/><path d="M13 27L27 13" stroke="#E66A2C" stroke-width="5" stroke-linecap="round"/>`,
-  (c) => `<path d="M20 4L36 34H4z" fill="${c}"/><circle cx="20" cy="26" r="5" fill="#E66A2C"/>`,
-  (c) => `<path d="M20 3l15 9v16l-15 9-15-9V12z" fill="${c}"/><path d="M20 12v16" stroke="#E66A2C" stroke-width="5" stroke-linecap="round"/>`,
-  (c) => `<circle cx="20" cy="20" r="14" fill="none" stroke="${c}" stroke-width="7"/><circle cx="29" cy="11" r="4.5" fill="#E66A2C"/>`,
-  (c) => `<path d="M20 3l17 17-17 17L3 20z" fill="${c}"/><rect x="15" y="15" width="10" height="10" rx="2" fill="#E66A2C"/>`,
-];
