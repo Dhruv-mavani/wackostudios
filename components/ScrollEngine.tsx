@@ -2,9 +2,11 @@
 
 import { useEffect } from "react";
 import { SERVICES } from "@/lib/data";
+import { LOGO_W, WEDGE, sectorPath } from "@/lib/wedge";
 
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const eio = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const SL = [[-70, -48, -26], [-34, 56, 20], [12, -66, -14], [44, 60, 24], [74, -40, 32], [0, 78, -6]];
 
 type Marquee = { track: HTMLElement; dir: number; speed: number; x: number | undefined; L: number };
@@ -24,7 +26,8 @@ export default function ScrollEngine() {
 
     let vw = innerWidth, vh = innerHeight, lastY = scrollY, vel = 0, svMax = 0, activeCard = -1, raf = 0;
 
-    const intro = $("#intro"), stage = $("#stage"), logoWrap = $("#logoWrap"), notch = $("#notch"), flood = $("#flood");
+    const intro = $("#intro"), stage = $("#stage"), logoWrap = $("#logoWrap"), apex = $("#apex"), flood = $("#flood");
+    const wedge = document.getElementById("logoWedge") as unknown as SVGSVGElement, wedgePath = document.getElementById("wedgePath")!, wedgeFly = $(".wedge-fly");
     const tagline = $("#tagline"), cue = $("#cue");
     const slices = $$(".slice"), fws = $$(".fw"), mWords = $$("#manifesto .mw");
     const sv = $("#services"), svStick = $("#svStick"), svRow = $("#svRow"), cards = $$(".card"), ghost = $("#ghost");
@@ -58,21 +61,37 @@ export default function ScrollEngine() {
         const ir = intro.getBoundingClientRect();
         if (ir.bottom > -50 && ir.top < vh) {
           const p = clamp(-ir.top / (ir.height - stage.offsetHeight));
-          const t1 = eio(clamp((p - 0.12) / 0.36));
-          logoWrap.style.transform = `scale(${1 + 0.55 * t1})`;
+          const t1 = eio(clamp((p - 0.1) / 0.34));
+          const sc = 1 + 0.55 * t1;
+          logoWrap.style.transform = `scale(${sc})`;
+          // The assemble-in animation holds its end state, which would override the scroll transforms, so release it once scrolling starts.
+          const anim = p > 0.005 ? "none" : "";
+          wedgeFly.style.animation = anim;
           slices.forEach((s, i) => {
             const v = SL[i], k = Math.min(vw, 1200) * 0.0105;
+            s.style.animation = anim;
             s.style.transform = `translate(${v[0] * k * t1}px,${v[1] * k * t1 * 0.8}px) rotate(${v[2] * t1}deg)`;
             s.style.opacity = String(1 - clamp((t1 - 0.45) / 0.55));
           });
           const fade = String(1 - clamp(p / 0.08));
           tagline.style.opacity = fade; cue.style.opacity = fade;
-          tagline.style.animation = cue.style.animation = p > 0.005 ? "none" : "";
-          const nb = notch.getBoundingClientRect(), cx = nb.left, cy = nb.top;
-          const maxR = Math.hypot(Math.max(cx, vw - cx), Math.max(cy, vh - cy)) + 80;
-          const t2 = eio(clamp((p - 0.3) / 0.3));
-          flood.style.clipPath = `circle(${t2 * maxR}px at ${cx}px ${cy}px)`;
-          const q = clamp((p - 0.56) / 0.34), n = mWords.length;
+          tagline.style.animation = cue.style.animation = anim;
+
+          /* Wedge: zooms in towards the centre, opens up into a full circle, then that circle becomes the flood. */
+          const ap = apex.getBoundingClientRect();
+          const u = (logoWrap.offsetWidth / LOGO_W) * sc;          // screen px per logo unit
+          const zoom = eio(clamp((p - 0.12) / 0.18));
+          const open = eio(clamp((p - 0.26) / 0.14));
+          const rEnd = Math.min(vw, vh) * 0.2;                      // radius of the circle at hand-off
+          const k = lerp(WEDGE.r * u, rEnd, zoom) / (WEDGE.r * u);
+          wedge.style.transform = `translate(${((vw / 2 - ap.left) * zoom) / sc}px,${((vh / 2 - ap.top) * zoom) / sc}px) scale(${k})`;
+          wedgePath.setAttribute("d", sectorPath(lerp(WEDGE.half, 180, open)));
+
+          const t2 = eio(clamp((p - 0.4) / 0.24));
+          const maxR = Math.hypot(vw / 2, vh / 2) + 80;
+          const rad = p < 0.4 ? 0 : lerp(rEnd, maxR, t2);
+          flood.style.clipPath = `circle(${rad}px at ${vw / 2}px ${vh / 2}px)`;
+          const q = clamp((p - 0.62) / 0.3), n = mWords.length;
           mWords.forEach((w, i) => { w.style.opacity = (0.16 + 0.84 * clamp(q * (n + 3) - i)).toFixed(3); });
           fws.forEach((f) => { f.style.transform = `translate3d(0,${-p * (+(f.dataset.sp ?? 80) || 80) * 3}px,0)`; });
         }

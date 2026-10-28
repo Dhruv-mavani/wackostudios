@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { LOGO_H, LOGO_W, WEDGE, sectorPath } from "@/lib/wedge";
 
 const FW = [
   { sp: 90, s: { left: "8%", top: "16%", width: 34 } },
@@ -34,7 +35,13 @@ export default function Intro() {
         <div className="logo-area" id="logoArea">
           <div className="logo-wrap" id="logoWrap">
             {[1, 2, 3, 4, 5, 6].map((n) => <div key={n} className={`slice s${n}`} />)}
-            <i className="notch" id="notch" />
+            {/* The wedge is its own element so it can zoom in and open up into a circle on scroll. */}
+            <div className="wedge-fly">
+              <svg className="wedge" id="logoWedge" viewBox={`0 0 ${LOGO_W} ${LOGO_H}`} aria-hidden="true">
+                <path id="wedgePath" fill="#E66A2C" d={sectorPath(WEDGE.half)} />
+              </svg>
+            </div>
+            <i className="apex" id="apex" />
           </div>
           <p className="tagline" id="tagline">Creative marketing for brands that refuse to <b>blend in.</b></p>
           <div className="cue" id="cue">Scroll<i /></div>

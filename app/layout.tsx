@@ -30,7 +30,7 @@ export const viewport: Viewport = { viewportFit: "cover", themeColor: "#172033" 
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   // The logo is the LCP element but is a CSS background, so the browser would not discover it early on its own.
-  preload("/logo.webp", { as: "image", fetchPriority: "high" });
+  preload("/logo-white.webp", { as: "image", fetchPriority: "high" });
   return (
     <html lang="en-IN" className={`js ${poppins.variable} ${montserrat.variable}`}>
       <body>{children}</body>
