@@ -27,7 +27,7 @@ export default function ScrollEngine() {
     let vw = innerWidth, vh = innerHeight, lastY = scrollY, vel = 0, svMax = 0, activeCard = -1, raf = 0;
 
     const intro = $("#intro"), stage = $("#stage"), logoWrap = $("#logoWrap"), apex = $("#apex"), flood = $("#flood");
-    const wedge = document.getElementById("logoWedge") as unknown as SVGSVGElement, wedgePath = document.getElementById("wedgePath")!, wedgeFly = $(".wedge-fly");
+    const wedge = document.getElementById("logoWedge") as unknown as SVGSVGElement, wedgePath = document.getElementById("wedgePath")!;
     const tagline = $("#tagline"), cue = $("#cue");
     const slices = $$(".slice"), fws = $$(".fw"), mWords = $$("#manifesto .mw");
     const sv = $("#services"), svStick = $("#svStick"), svRow = $("#svRow"), cards = $$(".card"), ghost = $("#ghost");
@@ -64,12 +64,10 @@ export default function ScrollEngine() {
           const t1 = eio(clamp((p - 0.1) / 0.34));
           const sc = 1 + 0.55 * t1;
           logoWrap.style.transform = `scale(${sc})`;
-          // The assemble-in animation holds its end state, which would override the scroll transforms, so release it once scrolling starts.
+          // The tagline and cue fade in with a CSS animation that holds its end state, so release it once scrolling starts.
           const anim = p > 0.005 ? "none" : "";
-          wedgeFly.style.animation = anim;
           slices.forEach((s, i) => {
             const v = SL[i], k = Math.min(vw, 1200) * 0.0105;
-            s.style.animation = anim;
             s.style.transform = `translate(${v[0] * k * t1}px,${v[1] * k * t1 * 0.8}px) rotate(${v[2] * t1}deg)`;
             s.style.opacity = String(1 - clamp((t1 - 0.45) / 0.55));
           });

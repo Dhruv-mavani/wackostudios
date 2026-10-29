@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat, Poppins } from "next/font/google";
-import { preload } from "react-dom";
 import Loader from "@/components/Loader";
 import { SITE, SITE_URL } from "@/lib/seo";
 import "./globals.css";
@@ -33,8 +32,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { viewportFit: "cover", themeColor: "#172033" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
-  // The loading screen's logo is the first paint; preload it so it appears immediately.
-  preload("/logo.webp", { as: "image", fetchPriority: "high" });
   return (
     <html lang="en-IN" className={`js is-loading ${poppins.variable} ${montserrat.variable}`}>
       <body>
@@ -42,7 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {children}
         {/* Without JS the loading screen can never finish, so skip it and show the page. */}
         <noscript>
-          <style>{`.loader{display:none}html.is-loading{overflow:auto}html.is-loading main,html.is-loading .rail{opacity:1;transform:none}html.is-loading .nav{opacity:1;transform:translateX(-50%)}html.is-loading :is(.slice,.wedge-fly,.tagline,.cue){animation-play-state:running}`}</style>
+          <style>{`html.is-loading{overflow:auto}html.is-loading .logo-pulse,html.is-loading .stage-glow{animation:none}html.is-loading .stage-bg{opacity:1}html.is-loading .fw,html.is-loading main>*{visibility:visible}html.is-loading :is(.fw,.tagline,.cue){animation-play-state:running}html.is-loading .rail{opacity:1}html.is-loading .nav{opacity:1;transform:translateX(-50%)}`}</style>
         </noscript>
       </body>
     </html>

@@ -15,9 +15,9 @@ const FLOOD_FW = [
 ];
 const MANIFESTO = "Brands that blend in get scrolled past. We build the ones that don't.";
 
-function Flower({ sp, s }: { sp: number; s: CSSProperties }) {
+function Flower({ sp, s, i }: { sp: number; s: CSSProperties; i: number }) {
   return (
-    <div className="fw" data-sp={sp} style={s}>
+    <div className="fw" data-sp={sp} style={{ ...s, animationDelay: `${0.5 + i * 0.14}s` }}>
       <svg><use href="#wedge" /></svg>
     </div>
   );
@@ -30,11 +30,17 @@ export default function Intro() {
       <h1 className="sr-only">Wacko Studios, a creative marketing agency</h1>
       <div className="stage" id="stage">
         <div className="stage-bg" />
-        {FW.map((f, i) => <Flower key={i} {...f} />)}
+        <div className="stage-glow" aria-hidden="true" />
+        {FW.map((f, i) => <Flower key={i} i={i} {...f} />)}
 
         <div className="logo-area" id="logoArea">
+          <div className="logo-pulse">
           <div className="logo-wrap" id="logoWrap">
-            {[1, 2, 3, 4, 5, 6].map((n) => <div key={n} className={`slice s${n}`} />)}
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <svg key={n} className={`slice s${n}`} viewBox={`0 0 ${LOGO_W} ${LOGO_H}`} preserveAspectRatio="none" aria-hidden="true">
+                <use href="#logoShape" />
+              </svg>
+            ))}
             {/* The wedge is its own element so it can zoom in and open up into a circle on scroll. */}
             <div className="wedge-fly">
               <svg className="wedge" id="logoWedge" viewBox={`0 0 ${LOGO_W} ${LOGO_H}`} aria-hidden="true">
@@ -43,12 +49,13 @@ export default function Intro() {
             </div>
             <i className="apex" id="apex" />
           </div>
+          </div>
           <p className="tagline" id="tagline">Creative marketing for brands that refuse to <b>blend in.</b></p>
           <div className="cue" id="cue">Scroll<i /></div>
         </div>
 
         <div className="flood" id="flood">
-          {FLOOD_FW.map((f, i) => <Flower key={i} {...f} />)}
+          {FLOOD_FW.map((f, i) => <Flower key={i} i={0} {...f} />)}
           <div className="in manifesto">
             <p className="eyebrow">Who we are</p>
             <p className="big" id="manifesto">
