@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { LOGO_H, LOGO_W, WEDGE, sectorPath } from "@/lib/wedge";
+import { LOGO_PIECES } from "@/lib/logoPath";
 
 const FW = [
   { sp: 90, s: { left: "8%", top: "16%", width: 34 } },
@@ -29,16 +30,27 @@ export default function Intro() {
     <section className="intro" id="intro" aria-label="Wacko Studios">
       <h1 className="sr-only">Wacko Studios, a creative marketing agency</h1>
       <div className="stage" id="stage">
-        <div className="stage-bg" />
+        <div className="stage-bg"><canvas className="dot-grid" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }} /></div>
         <div className="stage-glow" aria-hidden="true" />
         {FW.map((f, i) => <Flower key={i} i={i} {...f} />)}
 
         <div className="logo-area" id="logoArea">
           <div className="logo-pulse">
           <div className="logo-wrap" id="logoWrap">
-            {[1, 2, 3, 4, 5, 6].map((n) => (
-              <svg key={n} className={`slice s${n}`} viewBox={`0 0 ${LOGO_W} ${LOGO_H}`} preserveAspectRatio="none" aria-hidden="true">
-                <use href="#logoShape" />
+            {/* One piece per letter, so the logo splits along its letters (see ScrollEngine) rather than through them. */}
+            {LOGO_PIECES.map((pc) => (
+              <svg
+                key={pc.id}
+                className="slice"
+                data-row={pc.row}
+                data-i={pc.i}
+                data-cx={pc.cx}
+                viewBox={`0 0 ${LOGO_W} ${LOGO_H}`}
+                preserveAspectRatio="none"
+                aria-hidden="true"
+                style={{ transformOrigin: `${(pc.cx / LOGO_W) * 100}% ${(pc.cy / LOGO_H) * 100}%` }}
+              >
+                <path d={pc.d} fill="#fff" fillRule="evenodd" />
               </svg>
             ))}
             {/* The wedge is its own element so it can zoom in and open up into a circle on scroll. */}

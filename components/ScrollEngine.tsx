@@ -7,7 +7,6 @@ import { LOGO_W, WEDGE, sectorPath } from "@/lib/wedge";
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const eio = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-const SL = [[-70, -48, -26], [-34, 56, 20], [12, -66, -14], [44, 60, 24], [74, -40, 32], [0, 78, -6]];
 
 type Marquee = { track: HTMLElement; dir: number; speed: number; x: number | undefined; L: number };
 
@@ -29,7 +28,7 @@ export default function ScrollEngine() {
     const intro = $("#intro"), stage = $("#stage"), logoWrap = $("#logoWrap"), apex = $("#apex"), flood = $("#flood");
     const wedge = document.getElementById("logoWedge") as unknown as SVGSVGElement, wedgePath = document.getElementById("wedgePath")!;
     const tagline = $("#tagline"), cue = $("#cue");
-    const slices = $$(".slice"), fws = $$(".fw"), mWords = $$("#manifesto .mw");
+    const slices = $$(".slice"), fws = $$(".fw"), mWords = $$("#manifesto .mw"), manifesto = $(".manifesto");
     const sv = $("#services"), svStick = $("#svStick"), svRow = $("#svRow"), cards = $$(".card"), ghost = $("#ghost");
     const svBar = $("#svBar"), svCount = $("#svCount"), svName = $("#svName");
     const railFill = $("#railFill"), railWedge = $("#railWedge"), bigWedge = $("#bigWedge");
@@ -66,10 +65,17 @@ export default function ScrollEngine() {
           logoWrap.style.transform = `scale(${sc})`;
           // The tagline and cue fade in with a CSS animation that holds its end state, so release it once scrolling starts.
           const anim = p > 0.005 ? "none" : "";
-          slices.forEach((s, i) => {
-            const v = SL[i], k = Math.min(vw, 1200) * 0.0105;
-            s.style.transform = `translate(${v[0] * k * t1}px,${v[1] * k * t1 * 0.8}px) rotate(${v[2] * t1}deg)`;
-            s.style.opacity = String(1 - clamp((t1 - 0.45) / 0.55));
+          // The logo splits letter by letter, right to left. WACKO lifts away and STUDIOS drops away, each letter
+          // starting a beat after the one before it and fanning out from the middle, so it reads as one orderly wave.
+          const lin = clamp((p - 0.1) / 0.34);
+          slices.forEach((s) => {
+            const top = s.dataset.row === "top", i = +(s.dataset.i ?? 0), n = top ? 5 : 7, gap = top ? 0.14 : 0.09;
+            const local = eio(clamp(lin * (1 + (n - 1) * gap) - (n - 1 - i) * gap)); // right-most letter goes first
+            const spread = (((+(s.dataset.cx ?? 0) - LOGO_W / 2) / LOGO_W) * vw * 0.3) * local;
+            const rise = (top ? -1 : 1) * vh * 0.55 * local;
+            const tilt = (i % 2 ? 1 : -1) * (top ? 8 : 12) * local;
+            s.style.transform = `translate(${spread}px,${rise}px) rotate(${tilt}deg)`;
+            s.style.opacity = String(1 - clamp((local - 0.5) / 0.5));
           });
           const fade = String(1 - clamp(p / 0.08));
           tagline.style.opacity = fade; cue.style.opacity = fade;
@@ -89,6 +95,8 @@ export default function ScrollEngine() {
           const maxR = Math.hypot(vw / 2, vh / 2) + 80;
           const rad = p < 0.4 ? 0 : lerp(rEnd, maxR, t2);
           flood.style.clipPath = `circle(${rad}px at ${vw / 2}px ${vh / 2}px)`;
+          // The text block fades in as the circle opens, so it doesn't pop into view inside it.
+          manifesto.style.opacity = eio(clamp((p - 0.44) / 0.2)).toFixed(3);
           const q = clamp((p - 0.62) / 0.3), n = mWords.length;
           mWords.forEach((w, i) => { w.style.opacity = (0.16 + 0.84 * clamp(q * (n + 3) - i)).toFixed(3); });
           fws.forEach((f) => { f.style.transform = `translate3d(0,${-p * (+(f.dataset.sp ?? 80) || 80) * 3}px,0)`; });

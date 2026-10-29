@@ -11,6 +11,8 @@ import Contact from "@/components/Contact";
 import Faq from "@/components/Faq";
 import JsonLd from "@/components/JsonLd";
 import AgentTools from "@/components/AgentTools";
+import IntroFx from "@/components/IntroFx";
+import CardFx from "@/components/CardFx";
 
 export default function Home() {
   return (
@@ -32,6 +34,8 @@ export default function Home() {
         <Contact />
       </main>
       <ScrollEngine />
+      <IntroFx />
+      <CardFx />
       <AgentTools />
       <JsonLd />
     </>

@@ -13,7 +13,7 @@ function Row({ logos, dir }: { logos: typeof CLIENTS; dir: -1 | 1 }) {
           <span key={k} style={{ display: "contents" }}>
             {logos.map((c) => (
               <div className="logo-tile" key={c.name}>
-                <Image src={c.logo} alt="" width={c.w} height={c.h} loading="eager" />
+                <Image src={c.logo} alt="" width={c.w} height={c.h} loading="eager" style={c.w / c.h < 1.4 ? { height: 64 } : undefined} />
               </div>
             ))}
           </span>

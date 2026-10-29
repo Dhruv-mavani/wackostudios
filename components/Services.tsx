@@ -1,5 +1,5 @@
 import { SERVICES } from "@/lib/data";
-import { ICONS } from "@/lib/art";
+import { SERVICE_ART } from "@/lib/serviceArt";
 import Split from "./Split";
 import { GoLink } from "./Chrome";
 
@@ -21,7 +21,7 @@ export default function Services() {
           {SERVICES.map((s, i) => (
             <article className="card" key={s.n} data-name={s.n}>
               <div className="no"><span>{String(i + 1).padStart(2, "0")}</span><span>/ {SERVICES.length}</span></div>
-              <svg className="ico" viewBox="0 0 64 64" aria-hidden="true">{ICONS[s.i]}</svg>
+              <svg className="ico" viewBox="0 0 120 120" aria-hidden="true">{SERVICE_ART[s.i]}</svg>
               <h3>{s.n}</h3>
               <p>{s.d}</p>
               <ul className="chips">{s.c.map((x) => <li key={x}>{x}</li>)}</ul>
