@@ -4,11 +4,11 @@ import { LOGO_PIECES } from "@/lib/logoPath";
 
 const FW = [
   { sp: 90, s: { left: "8%", top: "16%", width: 34 } },
-  { sp: 180, s: { left: "84%", top: "22%", width: 58, opacity: 0.85 } },
-  { sp: 60, s: { left: "18%", top: "74%", width: 46, opacity: 0.7 } },
+  { sp: 180, s: { left: "84%", top: "22%", width: 58 } },
+  { sp: 60, s: { left: "18%", top: "74%", width: 46 } },
   { sp: 130, s: { left: "90%", top: "70%", width: 28 } },
-  { sp: 220, s: { left: "50%", top: "8%", width: 22, opacity: 0.6 } },
-  { sp: 110, s: { left: "70%", top: "88%", width: 38, opacity: 0.5 } },
+  { sp: 220, s: { left: "50%", top: "8%", width: 30 } },
+  { sp: 110, s: { left: "70%", top: "88%", width: 38 } },
 ];
 const FLOOD_FW = [
   { sp: 80, s: { left: "6%", top: "70%", width: 90 } },
@@ -16,10 +16,23 @@ const FLOOD_FW = [
 ];
 const MANIFESTO = "Brands that blend in get scrolled past. We build the ones that don't.";
 
-function Flower({ sp, s, i }: { sp: number; s: CSSProperties; i: number }) {
+const WEDGE_D = "M0 58 L128 0 Q88 58 83 120 Q60 80 0 58Z";
+
+/** `glass` arrows are liquid glass gems (the intro stage). The plain ones are the faint navy marks inside the flood. */
+function Flower({ sp, s, i, glass }: { sp: number; s: CSSProperties; i: number; glass?: boolean }) {
   return (
     <div className="fw" data-sp={sp} style={{ ...s, animationDelay: `${0.5 + i * 0.14}s` }}>
-      <svg><use href="#wedge" /></svg>
+      {glass ? (
+        <div className="fw-rot">
+          <div className="lg-glass orange" style={{ clipPath: "url(#lgc-wedge)" }} />
+          <svg className="lg-edge" viewBox="0 0 128 120" preserveAspectRatio="none" aria-hidden="true">
+            <path d={WEDGE_D} fill="#fff" filter="url(#lg-bevel-s)" />
+            <path d={WEDGE_D} fill="none" stroke="url(#lg-rim)" strokeWidth="1.5" strokeLinejoin="round" />
+          </svg>
+        </div>
+      ) : (
+        <svg><use href="#wedge" /></svg>
+      )}
     </div>
   );
 }
@@ -30,36 +43,53 @@ export default function Intro() {
     <section className="intro" id="intro" aria-label="Wacko Studios">
       <h1 className="sr-only">Wacko Studios, a creative marketing agency</h1>
       <div className="stage" id="stage">
-        <div className="stage-bg"><canvas className="dot-grid" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }} /></div>
+        <div className="stage-bg">
+          {/* Gradient background: soft colour blobs that drift slowly (pointer-events none). The glass logo and arrows refract them. */}
+          <i className="gl-blob b1" /><i className="gl-blob b2" /><i className="gl-blob b3" />
+          <canvas className="dot-grid" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }} /></div>
         <div className="stage-glow" aria-hidden="true" />
-        {FW.map((f, i) => <Flower key={i} i={i} {...f} />)}
+        {FW.map((f, i) => <Flower key={i} i={i} glass {...f} />)}
 
         <div className="logo-area" id="logoArea">
+          <div className="logo-tilt">
           <div className="logo-pulse">
           <div className="logo-wrap" id="logoWrap">
             {/* One piece per letter, so the logo splits along its letters (see ScrollEngine) rather than through them. */}
             {LOGO_PIECES.map((pc) => (
-              <svg
+              <div
                 key={pc.id}
                 className="slice"
                 data-row={pc.row}
                 data-i={pc.i}
                 data-cx={pc.cx}
-                viewBox={`0 0 ${LOGO_W} ${LOGO_H}`}
-                preserveAspectRatio="none"
                 aria-hidden="true"
-                style={{ transformOrigin: `${(pc.cx / LOGO_W) * 100}% ${(pc.cy / LOGO_H) * 100}%` }}
+                style={{
+                  left: `${(pc.x / LOGO_W) * 100}%`,
+                  top: `${(pc.y / LOGO_H) * 100}%`,
+                  width: `${(pc.w / LOGO_W) * 100}%`,
+                  height: `${(pc.h / LOGO_H) * 100}%`,
+                  transformOrigin: `${((pc.cx - pc.x) / pc.w) * 100}% ${((pc.cy - pc.y) / pc.h) * 100}%`,
+                }}
               >
-                <path d={pc.d} fill="#fff" fillRule="evenodd" />
-              </svg>
+                {/* Liquid glass: a frosted, tinted backdrop in the letter's shape, then the lit bevel and rim on top. */}
+                <div className="lg-glass" style={{ clipPath: `url(#lgc-${pc.id})` }} />
+                <svg className="lg-edge" viewBox={`${pc.x} ${pc.y} ${pc.w} ${pc.h}`} preserveAspectRatio="none" aria-hidden="true">
+                  <path d={pc.d} fill="#fff" fillRule="evenodd" filter="url(#lg-bevel)" />
+                  <path d={pc.d} fill="none" stroke="url(#lg-rim)" strokeWidth="2.6" strokeLinejoin="round" />
+                </svg>
+              </div>
             ))}
             {/* The wedge is its own element so it can zoom in and open up into a circle on scroll. */}
             <div className="wedge-fly">
               <svg className="wedge" id="logoWedge" viewBox={`0 0 ${LOGO_W} ${LOGO_H}`} aria-hidden="true">
-                <path id="wedgePath" fill="#E66A2C" d={sectorPath(WEDGE.half)} />
+                <path id="wedgePath" fill="url(#lg-gem)" filter="url(#lg-gem-filter)" d={sectorPath(WEDGE.half)} />
+                {/* Flat orange twin: fades in as the wedge becomes a circle, so the glossy gem settles into exactly the flat
+                    orange of the flood that grows out of it (no colour jump at the hand-off). */}
+                <path id="wedgeFlat" fill="#E66A2C" opacity="0" d={sectorPath(WEDGE.half)} />
               </svg>
             </div>
             <i className="apex" id="apex" />
+          </div>
           </div>
           </div>
           <p className="tagline" id="tagline">Creative marketing for brands that refuse to <b>blend in.</b></p>

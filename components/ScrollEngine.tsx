@@ -26,7 +26,7 @@ export default function ScrollEngine() {
     let vw = innerWidth, vh = innerHeight, lastY = scrollY, vel = 0, svMax = 0, activeCard = -1, raf = 0;
 
     const intro = $("#intro"), stage = $("#stage"), logoWrap = $("#logoWrap"), apex = $("#apex"), flood = $("#flood");
-    const wedge = document.getElementById("logoWedge") as unknown as SVGSVGElement, wedgePath = document.getElementById("wedgePath")!;
+    const wedge = document.getElementById("logoWedge") as unknown as SVGSVGElement, wedgePath = document.getElementById("wedgePath")!, wedgeFlat = document.getElementById("wedgeFlat")!;
     const tagline = $("#tagline"), cue = $("#cue");
     const slices = $$(".slice"), fws = $$(".fw"), mWords = $$("#manifesto .mw"), manifesto = $(".manifesto");
     const sv = $("#services"), svStick = $("#svStick"), svRow = $("#svRow"), cards = $$(".card"), ghost = $("#ghost");
@@ -89,7 +89,13 @@ export default function ScrollEngine() {
           const rEnd = Math.min(vw, vh) * 0.2;                      // radius of the circle at hand-off
           const k = lerp(WEDGE.r * u, rEnd, zoom) / (WEDGE.r * u);
           wedge.style.transform = `translate(${((vw / 2 - ap.left) * zoom) / sc}px,${((vh / 2 - ap.top) * zoom) / sc}px) scale(${k})`;
-          wedgePath.setAttribute("d", sectorPath(lerp(WEDGE.half, 180, open)));
+          const wd = sectorPath(lerp(WEDGE.half, 180, open));
+          wedgePath.setAttribute("d", wd);
+          wedgeFlat.setAttribute("d", wd);
+          // The glossy gem melts into flat orange while it opens, so it meets the flood in exactly the same colour.
+          wedgeFlat.setAttribute("opacity", eio(clamp((open - 0.35) / 0.65)).toFixed(3));
+          // The cursor tilt and depth shift (CSS) only apply while the logo sits still; they fade out as soon as it starts to move.
+          stage.style.setProperty("--tf", (1 - clamp(p / 0.1)).toFixed(3));
 
           const t2 = eio(clamp((p - 0.4) / 0.24));
           const maxR = Math.hypot(vw / 2, vh / 2) + 80;

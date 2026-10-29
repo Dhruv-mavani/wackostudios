@@ -1,7 +1,8 @@
 import { TESTIMONIALS, type Testimonial } from "@/lib/testimonials";
 import Split from "./Split";
 
-// Shown only while developing, so the design can be reviewed before any real quote exists. Never in production.
+// Placeholder cards, clearly tagged "Sample", shown until real testimonials are added to lib/testimonials.ts.
+// They contain no invented names, quotes or ratings, and they disappear as soon as one real testimonial exists.
 const SAMPLE: (Testimonial & { sample: true })[] = [1, 2, 3].map((n) => ({
   sample: true,
   quote: "A real client's words go here: two or three honest sentences about what changed for their brand.",
@@ -26,9 +27,7 @@ function Stars({ rating }: { rating: number }) {
 }
 
 export default function Testimonials() {
-  const items: (Testimonial & { sample?: boolean })[] =
-    TESTIMONIALS.length > 0 ? TESTIMONIALS : process.env.NODE_ENV !== "production" ? SAMPLE : [];
-  if (items.length === 0) return null;
+  const items: (Testimonial & { sample?: boolean })[] = TESTIMONIALS.length > 0 ? TESTIMONIALS : SAMPLE;
 
   return (
     <section className="proof" id="testimonials" aria-label="What clients say">

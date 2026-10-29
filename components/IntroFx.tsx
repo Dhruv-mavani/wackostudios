@@ -12,7 +12,8 @@ const TIP_ANGLE = (Math.atan2(-60, 64) * 180) / Math.PI;
 
 /**
  * Makes the intro stage react to the cursor: the orange arrows turn to point at it (and lean towards it), and the
- * dot grid is pulled towards it, so the dots bunch up and glow orange wherever it goes.
+ * dot grid is pulled towards it, so the dots bunch up and glow orange wherever it goes. The gradient glass background
+ * (blobs and frosted panes in Intro.tsx / globals.css) also shifts slightly with it.
  * Arrows are only driven for fine pointers; touch devices keep their slow spin.
  */
 export default function IntroFx() {
@@ -26,7 +27,7 @@ export default function IntroFx() {
     const fine = matchMedia("(hover:hover) and (pointer:fine)").matches;
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const arrows = fine && !reduced
-      ? Array.from(document.querySelectorAll<HTMLElement>(".stage > .fw")).map((box) => ({ box, svg: box.querySelector("svg")!, angle: 0, init: false }))
+      ? Array.from(document.querySelectorAll<HTMLElement>(".stage > .fw")).map((box) => ({ box, svg: (box.querySelector(".fw-rot") ?? box.querySelector("svg")) as HTMLElement, angle: 0, init: false }))
       : [];
 
     // Until the cursor moves, arrows point at the middle of the screen (the logo) and the dots rest in a plain grid.
@@ -69,6 +70,9 @@ export default function IntroFx() {
       if (!visible) return;
       cur.x += (target.x - cur.x) * ease; cur.y += (target.y - cur.y) * ease;
       presence += (presenceTarget - presence) * 0.08;
+      // The gradient glass layers drift a little with the cursor (--gx/--gy are -1..1, eased like the cursor).
+      stage.style.setProperty("--gx", Math.max(-1, Math.min(1, (cur.x - innerWidth / 2) / (innerWidth / 2))).toFixed(3));
+      stage.style.setProperty("--gy", Math.max(-1, Math.min(1, (cur.y - innerHeight / 2) / (innerHeight / 2))).toFixed(3));
       if (Math.abs(target.x - cur.x) > 0.2 || Math.abs(target.y - cur.y) > 0.2 || Math.abs(presenceTarget - presence) > 0.002) dirty = true;
       if (dirty) { draw(); dirty = false; }
 

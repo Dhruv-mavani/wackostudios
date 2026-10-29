@@ -2,7 +2,7 @@
  * REAL client testimonials only. Never invent or paraphrase a quote, name or rating: fake reviews mislead visitors
  * and break consumer-protection and search-engine rules. Get the client's permission to publish their words.
  *
- * While this list is empty the section is hidden on the live site (a labelled sample preview shows locally).
+ * While this list is empty the section shows three clearly labelled "Sample" placeholder cards. Add a real one and they vanish.
  * To add one, copy the shape below. `rating` is out of 5 and should be what the client actually gave (default 5).
  */
 export type Testimonial = {

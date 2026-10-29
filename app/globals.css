@@ -84,12 +84,12 @@ h2 em{font-style:normal;color:var(--orange)}
 .fw{position:absolute;color:var(--orange);will-change:transform}
 .dot-grid{position:absolute;inset:0;width:100%;height:100%;display:block}
 /* With a mouse, the intro arrows turn to face the cursor (IntroFx) instead of spinning. */
-html.has-cur .stage>.fw svg{animation:none;will-change:transform}
+html.has-cur .stage>.fw svg,html.has-cur .stage>.fw .fw-rot{animation:none;will-change:transform}
 .fw svg{display:block;width:100%;height:auto;animation:spin 26s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .logo-area{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,3.5vh,36px);padding:0 var(--gut-r) 0 var(--gut-l)}
 .logo-wrap{position:relative;width:min(84vw,880px);aspect-ratio:1578/549;transform-origin:94.5% 48%;will-change:transform}
-.slice{position:absolute;inset:0;width:100%;height:100%;display:block;will-change:transform,opacity}
+.slice{position:absolute;display:block;will-change:transform}
 .apex{position:absolute;left:calc(1414.67/1578*100%);top:calc(264.91/549*100%);width:1px;height:1px;pointer-events:none}
 .wedge-fly{position:absolute;inset:0}
 .wedge{position:absolute;inset:0;width:100%;height:100%;overflow:visible;transform-origin:calc(1414.67/1578*100%) calc(264.91/549*100%);will-change:transform}
@@ -308,9 +308,9 @@ footer button:hover{color:var(--orange)}
 html.is-loading:has(#intro){overflow:hidden}
 html.is-loading:has(#intro) .logo-pulse{animation:logo-breathe 1.5s ease-in-out infinite}
 /* Both keyframes meet at the same rest pose, so the handoff from breathing to growing has no jump. */
-html:not(.is-loading) .logo-pulse{animation:logo-grow 1.4s cubic-bezier(.22,.8,.2,1) both}
+html:not(.is-loading) .logo-pulse{animation:logo-grow 1.4s cubic-bezier(.22,.8,.2,1) backwards}
 @keyframes logo-breathe{0%,100%{transform:translateY(var(--dy)) scale(var(--s0));filter:drop-shadow(0 0 0 rgba(230,106,44,0))}50%{transform:translateY(var(--dy)) scale(calc(var(--s0)*1.1));filter:drop-shadow(0 0 26px rgba(230,106,44,.85))}}
-@keyframes logo-grow{from{transform:translateY(var(--dy)) scale(var(--s0));filter:drop-shadow(0 0 0 rgba(230,106,44,0))}40%{filter:drop-shadow(0 0 28px rgba(230,106,44,.55))}to{transform:none;filter:drop-shadow(0 0 0 rgba(230,106,44,0))}}
+@keyframes logo-grow{from{transform:translateY(var(--dy)) scale(var(--s0))}to{transform:none}}
 
 .stage-glow{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(46% 42% at 50% 50%,rgba(230,106,44,.55),rgba(230,106,44,.14) 52%,transparent 76%)}
 html.is-loading:has(#intro) .stage-glow{animation:glow-pulse 1.5s ease-in-out infinite}
@@ -434,3 +434,31 @@ html.is-loading:has(#intro) .rail{opacity:0}
 .proof-av{flex:none;width:46px;height:46px;border-radius:50%;background:var(--navy);color:var(--orange);display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:15px}
 .proof-card figcaption b{display:block;font-family:var(--f-display);font-weight:700;font-size:16px;line-height:1.2}
 .proof-card figcaption small{display:block;font-size:13px;color:var(--ink-dim);margin-top:2px}
+
+/* ---------- GRADIENT GLASS BACKGROUND (intro stage) ---------- */
+/* Soft colour blobs drift at the back; the glass logo and arrows blur and refract them. The dot grid canvas is drawn on
+   top. --gx/--gy (-1..1) come from IntroFx and shift each blob by a different amount. */
+.stage-bg{overflow:hidden;background:radial-gradient(60% 50% at 50% 56%,rgba(230,106,44,.14),transparent 70%),linear-gradient(160deg,#172033 0%,#1b2542 55%,#241f3d 100%)}
+.gl-blob{position:absolute;pointer-events:none;translate:calc(var(--gx,0)*var(--s,18px)) calc(var(--gy,0)*var(--s,18px))}
+.gl-blob{border-radius:50%;will-change:transform}
+.gl-blob.b1{--s:26px;width:62vmax;height:62vmax;left:-20vmax;top:-18vmax;background:radial-gradient(circle,rgba(230,106,44,.62),rgba(230,106,44,.2) 42%,transparent 70%);animation:gl-drift-a 26s ease-in-out infinite alternate}
+.gl-blob.b2{--s:-30px;width:58vmax;height:58vmax;right:-22vmax;bottom:-26vmax;background:radial-gradient(circle,rgba(92,112,196,.55),rgba(92,112,196,.16) 45%,transparent 70%);animation:gl-drift-b 32s ease-in-out infinite alternate}
+.gl-blob.b3{--s:34px;width:36vmax;height:36vmax;right:6vw;top:-14vmax;background:radial-gradient(circle,rgba(255,168,92,.5),rgba(255,168,92,.12) 48%,transparent 70%);animation:gl-drift-c 22s ease-in-out infinite alternate}
+@keyframes gl-drift-a{to{transform:translate3d(7vmax,5vmax,0) scale(1.08)}}
+@keyframes gl-drift-b{to{transform:translate3d(-6vmax,-4vmax,0) scale(1.1)}}
+@keyframes gl-drift-c{to{transform:translate3d(-5vmax,6vmax,0) scale(.92)}}
+/* ---------- LIQUID GLASS: LOGO LETTERS AND ARROWS ---------- */
+/* Never put filter, opacity below 1 or mix-blend-mode on an ancestor of a .lg-glass: it would stop the backdrop blur
+   seeing the gradient background behind it. */
+.lg-glass{position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.86),rgba(255,255,255,.58) 46%,rgba(255,255,255,.76));-webkit-backdrop-filter:blur(9px) saturate(130%) brightness(1.3);backdrop-filter:blur(9px) saturate(130%) brightness(1.3)}
+.lg-glass.orange{background:linear-gradient(135deg,rgba(255,184,120,.82),rgba(230,106,44,.62) 50%,rgba(178,62,14,.74));-webkit-backdrop-filter:blur(5px) saturate(190%);backdrop-filter:blur(5px) saturate(190%)}
+.lg-edge{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible;pointer-events:none}
+.fw-rot{position:relative;width:96%;aspect-ratio:128/120;margin:0 auto;will-change:transform}
+.fw .fw-rot{animation:spin 26s linear infinite}
+
+/* ---------- 3D TILT (logo follows the cursor a little) ---------- */
+/* --gx/--gy (-1..1) come from IntroFx. --tf (1 -> 0) comes from ScrollEngine and switches the effect off as the logo
+   starts to split apart, so the wedge always lands exactly in the middle of the screen for the flood. */
+.logo-tilt{display:flex;transform:perspective(1300px) rotateX(calc(var(--gy,0)*var(--tf,1)*-4.5deg)) rotateY(calc(var(--gx,0)*var(--tf,1)*6.5deg));transform-origin:50% 50%;will-change:transform}
+.slice[data-row="top"]{translate:calc(var(--gx,0)*var(--tf,1)*-7px) calc(var(--gy,0)*var(--tf,1)*-5px)}
+.slice[data-row="studios"]{translate:calc(var(--gx,0)*var(--tf,1)*-14px) calc(var(--gy,0)*var(--tf,1)*-10px)}
