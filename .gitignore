@@ -42,3 +42,4 @@ next-env.d.ts
 
 # Designer SVG kept locally only (raster-in-SVG, not used by the site)
 /public/logo.svg
+!.env.example

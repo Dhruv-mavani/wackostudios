@@ -22,7 +22,10 @@ const getDays = () => {
 };
 const subscribe = () => () => {};
 // Declarative WebMCP attributes (not yet in React's types) that let browser agents discover the form as a tool.
-const WEBMCP_FORM = { toolname: "request_meeting_slot", tooldescription: "Request a free 30 minute intro call with Wacko Studios. Choose a day and time, add name and contact, then submit to get a WhatsApp or email-ready request." };
+const WEBMCP_FORM = { toolname: "request_meeting_slot", tooldescription: "Request a free 30 minute intro call with Wacko Studios. Choose a day and time, add name and contact, then submit to send the request to the team." };
+// Web3Forms access keys are public by design (they only route submissions to your inbox). Set it in .env.local and in Vercel.
+const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
+const looksLikeEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 const isoDate = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
 export default function Book() {
@@ -31,6 +34,8 @@ export default function Book() {
   const [time, setTime] = useState<number | null>(null);
   const [err, setErr] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
   const [copyLabel, setCopyLabel] = useState("Copy details");
   const [form, setForm] = useState({ name: "", contact: "", topic: "Not sure yet", notes: "" });
 
@@ -47,13 +52,49 @@ export default function Book() {
     `Hi Wacko Studios! I would like to book a 30 minute meeting.\nWhen: ${label}\nName: ${form.name.trim()}\nContact: ${form.contact.trim()}\nTopic: ${form.topic}` +
     (form.notes.trim() ? `\nNotes: ${form.notes.trim()}` : "");
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (sending) return;
     if (label === null) return setErr("Please choose a day and a time first.");
     if (!form.name.trim() || !form.contact.trim()) return setErr("Please add your name and an email or phone number.");
     setErr("");
-    setMsg(message());
+    const text = message();
+
+    // No key configured: fall back to a ready-made WhatsApp / email request, nothing is sent.
+    if (!WEB3FORMS_KEY) { setSent(false); setMsg(text); return; }
+    // Honeypot: real visitors never tick this hidden box.
+    if (new FormData(e.currentTarget).get("botcheck")) return;
+
+    const contact = form.contact.trim();
+    setSending(true);
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: `New meeting request: ${label} (${form.name.trim()})`,
+          from_name: "Wacko Studios website",
+          name: form.name.trim(),
+          ...(looksLikeEmail(contact) ? { email: contact } : { phone: contact }),
+          contact,
+          when: label,
+          topic: form.topic,
+          notes: form.notes.trim() || "-",
+          message: text,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) { setSent(true); setMsg(text); }
+      else setErr(data.message || "Something went wrong sending your request. Please try again.");
+    } catch {
+      setErr("We couldn't send that right now. Please try again, or message us on WhatsApp.");
+    } finally {
+      setSending(false);
+    }
   };
+
+  const reset = () => { setMsg(null); setSent(false); setDay(null); setTime(null); setForm({ name: "", contact: "", topic: "Not sure yet", notes: "" }); };
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setForm({ ...form, [k]: e.target.value });
   const clearErr = () => setErr("");
@@ -104,22 +145,35 @@ export default function Book() {
                   </div>
                   <div className="full"><label htmlFor="fNotes">Anything we should know? (optional)</label><textarea id="fNotes" name="notes" placeholder="Your brand, goals, timeline…" value={form.notes} onChange={set("notes")} /></div>
                 </div>
+                <input type="checkbox" name="botcheck" className="sr-only" tabIndex={-1} autoComplete="off" aria-hidden="true" />
                 <p className="err" role="alert">{err}</p>
-                <button className="btn" type="submit">Request this slot</button>
+                <button className="btn" type="submit" disabled={sending}>{sending ? "Sending…" : "Request this slot"}</button>
               </form>
             </div>
           ) : (
             <div className="done">
-              <h3>Your request is ready</h3>
+              <h3>{sent ? "Request sent" : "Your request is ready"}</h3>
               <div className="sum">
                 {msg.split("\n").slice(1).map((l, i) => { const k = l.indexOf(":"); return <div key={i}><b>{l.slice(0, k)}</b>{l.slice(k)}</div>; })}
               </div>
-              <div className="row">
-                <a className="btn" href={`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`} target="_blank" rel="noopener">Send on WhatsApp</a>
-                <button className="btn ghost" type="button" onClick={async () => { setCopyLabel(await copyText(msg)); setTimeout(() => setCopyLabel("Copy details"), 1600); }}>{copyLabel}</button>
-                <button className="btn ghost" type="button" onClick={() => setMsg(null)}>Change slot</button>
-              </div>
-              <small>Nothing has been sent yet. Tap Send on WhatsApp, or email the details to <span className="mail">{EMAIL}</span>, and we will confirm your slot.</small>
+              {sent ? (
+                <>
+                  <div className="row">
+                    <a className="btn" href={`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`} target="_blank" rel="noopener">Also message us on WhatsApp</a>
+                    <button className="btn ghost" type="button" onClick={reset}>Book another</button>
+                  </div>
+                  <small>Thanks! Your request is with the team and we will confirm your slot using the contact you gave.</small>
+                </>
+              ) : (
+                <>
+                  <div className="row">
+                    <a className="btn" href={`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`} target="_blank" rel="noopener">Send on WhatsApp</a>
+                    <button className="btn ghost" type="button" onClick={async () => { setCopyLabel(await copyText(msg)); setTimeout(() => setCopyLabel("Copy details"), 1600); }}>{copyLabel}</button>
+                    <button className="btn ghost" type="button" onClick={() => setMsg(null)}>Change slot</button>
+                  </div>
+                  <small>Nothing has been sent yet. Tap Send on WhatsApp, or email the details to <span className="mail">{EMAIL}</span>, and we will confirm your slot.</small>
+                </>
+              )}
             </div>
           )}
         </div>

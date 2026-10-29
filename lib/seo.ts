@@ -28,7 +28,7 @@ export const FAQ = [
   },
   {
     q: "How do I book a call with Wacko Studios?",
-    a: `Pick a day and a time (shown in IST) in the scheduler on this page, then send the request on WhatsApp at ${PHONE} or by email to ${EMAIL}. The team replies to confirm the slot.`,
+    a: `Pick a day and a time (shown in IST) in the scheduler on this page and send the request. It goes straight to the team, who reply to confirm the slot. You can also message on WhatsApp at ${PHONE} or email ${EMAIL}.`,
   },
   {
     q: "Is the intro call free?",

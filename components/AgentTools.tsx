@@ -54,7 +54,7 @@ export default function AgentTools() {
       },
       {
         name: "prepare_meeting_request",
-        description: "Fill in the booking form on the page for a free 30 minute intro call. Selects the slot and fills the fields but does not submit; the user must press 'Request this slot'.",
+        description: "Fill in the booking form on the page for a free 30 minute intro call. Selects the slot and fills the fields but does not submit; the user must press 'Request this slot' to send it to the team.",
         inputSchema: {
           type: "object",
           properties: {
@@ -74,7 +74,7 @@ export default function AgentTools() {
           dayBtn.click(); slotBtn.click();
           fill("fName", name); fill("fContact", contact); fill("fTopic", topic); fill("fNotes", notes);
           document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
-          return json({ ok: true, note: "Form filled. Nothing has been sent. The user must press 'Request this slot' to continue." });
+          return json({ ok: true, note: "Form filled. Nothing has been sent. The user must press 'Request this slot' to send the request to the team." });
         },
       },
     ];
