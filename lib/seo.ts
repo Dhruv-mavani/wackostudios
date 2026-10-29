@@ -1,7 +1,7 @@
 import { EMAIL, INSTAGRAM_URL, PHONE, SERVICES } from "./data";
 
-// Set NEXT_PUBLIC_SITE_URL once the custom domain is live; canonical, sitemap and structured data all follow it.
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://wackostudios.vercel.app").replace(/\/$/, "");
+// Canonical, sitemap, structured data and email links all follow this. Override with NEXT_PUBLIC_SITE_URL if the domain changes.
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://wackostudios.in").replace(/\/$/, "");
 
 export const SITE = {
   name: "Wacko Studios",

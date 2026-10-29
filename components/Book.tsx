@@ -36,7 +36,7 @@ export default function Book() {
   const [msg, setMsg] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [copyLabel, setCopyLabel] = useState("Copy details");
-  const [form, setForm] = useState({ name: "", email: "", topic: "Not sure yet", notes: "" });
+  const [form, setForm] = useState({ name: "", brand: "", email: "", topic: "Not sure yet", notes: "" });
 
   const dTxt = (d: Date) => `${DN[d.getDay()]} ${d.getDate()} ${MN[d.getMonth()]}`;
   const label = day !== null && time !== null ? `${dTxt(days[day])}, ${TIMES[time]} IST` : null;
@@ -48,7 +48,7 @@ export default function Book() {
     : "Nothing selected yet.";
 
   const message = () =>
-    `Hi Wacko Studios! I would like to book a 30 minute meeting.\nWhen: ${label}\nName: ${form.name.trim()}\nEmail: ${normalizeEmail(form.email)}\nTopic: ${form.topic}` +
+    `Hi Wacko Studios! I would like to book a 30 minute meeting.\nWhen: ${label}\nName: ${form.name.trim()}\n${form.brand.trim() ? `Brand: ${form.brand.trim()}\n` : ""}Email: ${normalizeEmail(form.email)}\nTopic: ${form.topic}` +
     (form.notes.trim() ? `\nNotes: ${form.notes.trim()}` : "");
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -72,7 +72,7 @@ export default function Book() {
         const res = await fetch("/api/book", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: form.name.trim(), email, topic: form.topic, notes: form.notes.trim(), date: isoDate(days[day!]), time: TIMES[time!], label }),
+          body: JSON.stringify({ name: form.name.trim(), brand: form.brand.trim(), email, topic: form.topic, notes: form.notes.trim(), date: isoDate(days[day!]), time: TIMES[time!], label }),
         });
         const data = await res.json().catch(() => ({}));
         if (res.ok && data.ok) delivered = true;
@@ -88,6 +88,7 @@ export default function Book() {
             subject: `New meeting request: ${label} (${form.name.trim()})`,
             from_name: "Wacko Studios website",
             name: form.name.trim(),
+            brand: form.brand.trim() || "-",
             email,
             when: label,
             topic: form.topic,
@@ -157,7 +158,8 @@ export default function Book() {
               <form id="bookForm" onSubmit={submit} noValidate {...WEBMCP_FORM}>
                 <div className="fields">
                   <div><label htmlFor="fName">Name</label><input id="fName" name="name" autoComplete="name" placeholder="Your name" value={form.name} onChange={set("name")} /></div>
-                  <div><label htmlFor="fEmail">Email</label><input id="fEmail" name="email" type="email" inputMode="email" autoComplete="email" maxLength={254} placeholder="you@brand.com" value={form.email} onChange={set("email")} /></div>
+                  <div><label htmlFor="fBrand">Brand / business name</label><input id="fBrand" name="brand" autoComplete="organization" maxLength={80} placeholder="Your brand / business" value={form.brand} onChange={set("brand")} /></div>
+                  <div className="full"><label htmlFor="fEmail">Email</label><input id="fEmail" name="email" type="email" inputMode="email" autoComplete="email" maxLength={254} placeholder="you@brand.com" value={form.email} onChange={set("email")} /></div>
                   <div className="full">
                     <label htmlFor="fTopic">What do you want to talk about?</label>
                     <select id="fTopic" name="topic" value={form.topic} onChange={set("topic")}>

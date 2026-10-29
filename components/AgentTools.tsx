@@ -61,18 +61,19 @@ export default function AgentTools() {
             date: { type: "string", description: "Day as YYYY-MM-DD, from list_available_slots" },
             time: { type: "string", description: "Time in IST, for example '3:00 PM', from list_available_slots" },
             name: { type: "string", description: "Requester's name" },
+            brand: { type: "string", description: "Requester's brand or business name (optional)" },
             email: { type: "string", description: "Requester's email address" },
             topic: { type: "string", description: "A service name, or 'Not sure yet'" },
             notes: { type: "string", description: "Brand, goals and timeline" },
           },
           required: ["date", "time", "name", "email"],
         },
-        execute: async ({ date, time, name, email, topic, notes }) => {
+        execute: async ({ date, time, name, brand, email, topic, notes }) => {
           const dayBtn = document.querySelector<HTMLElement>(`.day[data-date="${date}"]`);
           const slotBtn = Array.from(document.querySelectorAll<HTMLElement>(".slot")).find((b) => b.dataset.time === time);
           if (!dayBtn || !slotBtn) return json({ ok: false, error: "That date or time is not available. Call list_available_slots for valid values." });
           dayBtn.click(); slotBtn.click();
-          fill("fName", name); fill("fEmail", email); fill("fTopic", topic); fill("fNotes", notes);
+          fill("fName", name); fill("fBrand", brand); fill("fEmail", email); fill("fTopic", topic); fill("fNotes", notes);
           document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
           return json({ ok: true, note: "Form filled. Nothing has been sent. The user must press 'Request this slot' to send the request to the team." });
         },

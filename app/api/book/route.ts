@@ -50,6 +50,7 @@ export async function POST(req: Request) {
 
   const b: Booking = {
     name: clean(body.name, 80),
+    brand: clean(body.brand, 80),
     email: normalizeEmail(clean(body.email, 254)),
     topic: clean(body.topic, 80),
     notes: clean(body.notes, 1500),

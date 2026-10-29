@@ -8,6 +8,8 @@ import { SITE, SITE_URL } from "./seo";
  */
 export type Booking = {
   name: string;
+  /** brand or business name; may be empty */
+  brand: string;
   email: string;
   topic: string;
   notes: string;
@@ -103,7 +105,7 @@ export function renderOwnerEmail(b: Booking) {
 
   const replySubject = `Re: Your meeting request, ${b.label}`;
   const replyBody = `Hi ${b.name},\n\nThanks for your request for ${b.label}. That works for us.\n\nWacko Studios`;
-  const cal = calendarUrl(b, `Wacko Studios intro call: ${b.name}`);
+  const cal = calendarUrl(b, `Wacko Studios intro call: ${b.name}${b.brand ? ` (${b.brand})` : ""}`);
 
   const buttons = [
     button(`mailto:${b.email}?subject=${encodeURIComponent(replySubject)}&body=${encodeURIComponent(replyBody)}`, "Reply by email"),
@@ -118,13 +120,14 @@ export function renderOwnerEmail(b: Booking) {
     : "";
 
   const html = shell(
-    `${b.name} would like a call on ${b.label}. Topic: ${b.topic}.`,
+    `${b.name}${b.brand ? ` from ${b.brand}` : ""} would like a call on ${b.label}. Topic: ${b.topic}.`,
     `${header}
 ${hero("New meeting request", b.label, "30 minute intro call · India time (IST)")}
 <tr><td style="padding:30px 32px 10px">
   <p style="margin:0 0 14px;font-family:${FONT};font-weight:800;font-size:22px;letter-spacing:-.01em;color:${C.navy}">${esc(b.name)} wants to talk.</p>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
     ${row("Name", esc(b.name))}
+    ${b.brand ? row("Brand", esc(b.brand)) : ""}
     ${row("Email", emailHtml)}
     ${row("Slot", `${esc(b.label)}`)}
     ${row("Topic", esc(b.topic))}
@@ -143,6 +146,7 @@ ${footer}`,
     b.label,
     "",
     `Name: ${b.name}`,
+    b.brand ? `Brand: ${b.brand}` : "",
     `Email: ${b.email}`,
     `Slot: ${b.label}`,
     `Topic: ${b.topic}`,
@@ -151,7 +155,7 @@ ${footer}`,
     cal ? `Add to calendar: ${cal}` : "",
   ].filter((l) => l !== "").join("\n");
 
-  return { subject: `New meeting request: ${b.label} · ${b.name}`, html, text };
+  return { subject: `New meeting request: ${b.label} · ${b.name}${b.brand ? `, ${b.brand}` : ""}`, html, text };
 }
 
 /* ---------- 2. Optional confirmation to the visitor (needs a verified sending domain) ---------- */

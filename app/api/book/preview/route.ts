@@ -6,6 +6,7 @@ export function GET(req: Request) {
   const q = new URL(req.url).searchParams;
   const sample: Booking = {
     name: "Aarav Mehta",
+    brand: "Glow Skincare",
     email: "aarav@brandstudio.in",
     topic: "Performance Marketing",
     notes: "We run a D2C skincare brand and want help scaling paid ads before the festive season.\nBudget is flexible. Can we also talk about a landing page?",
