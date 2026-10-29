@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore } from "react";
 import { EMAIL, SERVICES, TIMES, WA } from "@/lib/data";
 import { copyText } from "@/lib/copy";
+import { EMAIL_ERROR, isValidEmail, normalizeEmail } from "@/lib/validate";
 import Split from "./Split";
 
 const DN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -22,10 +23,9 @@ const getDays = () => {
 };
 const subscribe = () => () => {};
 // Declarative WebMCP attributes (not yet in React's types) that let browser agents discover the form as a tool.
-const WEBMCP_FORM = { toolname: "request_meeting_slot", tooldescription: "Request a free 30 minute intro call with Wacko Studios. Choose a day and time, add name and contact, then submit to send the request to the team." };
+const WEBMCP_FORM = { toolname: "request_meeting_slot", tooldescription: "Request a free 30 minute intro call with Wacko Studios. Choose a day and time, add name and email, then submit to send the request to the team." };
 // Web3Forms access keys are public by design (they only route submissions to your inbox). Set it in .env.local and in Vercel.
 const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
-const looksLikeEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 const isoDate = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
 export default function Book() {
@@ -36,7 +36,7 @@ export default function Book() {
   const [msg, setMsg] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [copyLabel, setCopyLabel] = useState("Copy details");
-  const [form, setForm] = useState({ name: "", contact: "", topic: "Not sure yet", notes: "" });
+  const [form, setForm] = useState({ name: "", email: "", topic: "Not sure yet", notes: "" });
 
   const dTxt = (d: Date) => `${DN[d.getDay()]} ${d.getDate()} ${MN[d.getMonth()]}`;
   const label = day !== null && time !== null ? `${dTxt(days[day])}, ${TIMES[time]} IST` : null;
@@ -48,21 +48,22 @@ export default function Book() {
     : "Nothing selected yet.";
 
   const message = () =>
-    `Hi Wacko Studios! I would like to book a 30 minute meeting.\nWhen: ${label}\nName: ${form.name.trim()}\nContact: ${form.contact.trim()}\nTopic: ${form.topic}` +
+    `Hi Wacko Studios! I would like to book a 30 minute meeting.\nWhen: ${label}\nName: ${form.name.trim()}\nEmail: ${normalizeEmail(form.email)}\nTopic: ${form.topic}` +
     (form.notes.trim() ? `\nNotes: ${form.notes.trim()}` : "");
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (sending) return;
     if (label === null) return setErr("Please choose a day and a time first.");
-    if (!form.name.trim() || !form.contact.trim()) return setErr("Please add your name and an email or phone number.");
+    if (!form.name.trim()) return setErr("Please add your name.");
+    const email = normalizeEmail(form.email);
+    if (!isValidEmail(email)) return setErr(EMAIL_ERROR);
     setErr("");
     const text = message();
 
     // Honeypot: real visitors never tick this hidden box.
     if (new FormData(e.currentTarget).get("botcheck")) return;
 
-    const contact = form.contact.trim();
     setSending(true);
     try {
       // 1) Our own route: sends the fully branded email. 2) If it is unavailable, Web3Forms as a safety net.
@@ -71,7 +72,7 @@ export default function Book() {
         const res = await fetch("/api/book", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: form.name.trim(), contact, topic: form.topic, notes: form.notes.trim(), date: isoDate(days[day!]), time: TIMES[time!], label }),
+          body: JSON.stringify({ name: form.name.trim(), email, topic: form.topic, notes: form.notes.trim(), date: isoDate(days[day!]), time: TIMES[time!], label }),
         });
         const data = await res.json().catch(() => ({}));
         if (res.ok && data.ok) delivered = true;
@@ -87,8 +88,7 @@ export default function Book() {
             subject: `New meeting request: ${label} (${form.name.trim()})`,
             from_name: "Wacko Studios website",
             name: form.name.trim(),
-            ...(looksLikeEmail(contact) ? { email: contact } : { phone: contact }),
-            contact,
+            email,
             when: label,
             topic: form.topic,
             notes: form.notes.trim() || "-",
@@ -157,7 +157,7 @@ export default function Book() {
               <form id="bookForm" onSubmit={submit} noValidate {...WEBMCP_FORM}>
                 <div className="fields">
                   <div><label htmlFor="fName">Name</label><input id="fName" name="name" autoComplete="name" placeholder="Your name" value={form.name} onChange={set("name")} /></div>
-                  <div><label htmlFor="fContact">Email or phone</label><input id="fContact" name="contact" autoComplete="email" placeholder="you@brand.com or +91…" value={form.contact} onChange={set("contact")} /></div>
+                  <div><label htmlFor="fEmail">Email</label><input id="fEmail" name="email" type="email" inputMode="email" autoComplete="email" maxLength={254} placeholder="you@brand.com" value={form.email} onChange={set("email")} /></div>
                   <div className="full">
                     <label htmlFor="fTopic">What do you want to talk about?</label>
                     <select id="fTopic" name="topic" value={form.topic} onChange={set("topic")}>

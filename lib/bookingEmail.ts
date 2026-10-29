@@ -8,7 +8,7 @@ import { SITE, SITE_URL } from "./seo";
  */
 export type Booking = {
   name: string;
-  contact: string;
+  email: string;
   topic: string;
   notes: string;
   /** YYYY-MM-DD, the day picked in the scheduler */
@@ -25,14 +25,6 @@ const FONT_BODY = "'Montserrat','Segoe UI',Helvetica,Arial,sans-serif";
 
 export const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-
-export const looksLikeEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-
-/** Digits for a wa.me link; a bare 10 digit Indian number gets the 91 prefix. */
-function waDigits(contact: string) {
-  const d = contact.replace(/\D/g, "");
-  return d.length === 10 ? `91${d}` : d;
-}
 
 /** Google Calendar "add event" link for a 30 minute slot. The scheduler's times are IST (UTC+5:30). */
 export function calendarUrl(b: Pick<Booking, "date" | "time" | "topic">, title: string) {
@@ -107,20 +99,14 @@ const hero = (eyebrow: string, label: string, sub: string) => `
 /* ---------- 1. The email you receive ---------- */
 
 export function renderOwnerEmail(b: Booking) {
-  const isEmail = looksLikeEmail(b.contact);
-  const contactHtml = isEmail
-    ? `<a href="mailto:${esc(b.contact)}" style="color:${C.navy};text-decoration:underline">${esc(b.contact)}</a>`
-    : `<a href="tel:${esc(b.contact.replace(/[^\d+]/g, ""))}" style="color:${C.navy};text-decoration:underline">${esc(b.contact)}</a>`;
+  const emailHtml = `<a href="mailto:${esc(b.email)}" style="color:${C.navy};text-decoration:underline">${esc(b.email)}</a>`;
 
   const replySubject = `Re: Your meeting request, ${b.label}`;
   const replyBody = `Hi ${b.name},\n\nThanks for your request for ${b.label}. That works for us.\n\nWacko Studios`;
   const cal = calendarUrl(b, `Wacko Studios intro call: ${b.name}`);
 
   const buttons = [
-    isEmail ? button(`mailto:${b.contact}?subject=${encodeURIComponent(replySubject)}&body=${encodeURIComponent(replyBody)}`, "Reply by email") : "",
-    waDigits(b.contact).length >= 10 && !isEmail
-      ? button(`https://wa.me/${waDigits(b.contact)}?text=${encodeURIComponent(`Hi ${b.name}, this is Wacko Studios. Thanks for your request for ${b.label}. That works for us.`)}`, "Reply on WhatsApp")
-      : "",
+    button(`mailto:${b.email}?subject=${encodeURIComponent(replySubject)}&body=${encodeURIComponent(replyBody)}`, "Reply by email"),
     cal ? button(cal, "Add to calendar", "dark") : "",
   ].join("");
 
@@ -139,7 +125,7 @@ ${hero("New meeting request", b.label, "30 minute intro call · India time (IST)
   <p style="margin:0 0 14px;font-family:${FONT};font-weight:800;font-size:22px;letter-spacing:-.01em;color:${C.navy}">${esc(b.name)} wants to talk.</p>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
     ${row("Name", esc(b.name))}
-    ${row("Contact", contactHtml)}
+    ${row("Email", emailHtml)}
     ${row("Slot", `${esc(b.label)}`)}
     ${row("Topic", esc(b.topic))}
     ${notes}
@@ -147,7 +133,7 @@ ${hero("New meeting request", b.label, "30 minute intro call · India time (IST)
 </td></tr>
 <tr><td style="padding:14px 32px 34px">
   <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>${buttons}</tr></table>
-  <p style="margin:6px 0 0;font-family:${FONT_BODY};font-size:13px;line-height:1.6;color:${C.ink2}">${isEmail ? "Replying to this email goes straight to them." : "They left a phone number rather than an email, so use the WhatsApp button or give them a call."} Nothing is booked until you confirm.</p>
+  <p style="margin:6px 0 0;font-family:${FONT_BODY};font-size:13px;line-height:1.6;color:${C.ink2}">Replying to this email goes straight to them. Nothing is booked until you confirm.</p>
 </td></tr>
 ${footer}`,
   );
@@ -157,7 +143,7 @@ ${footer}`,
     b.label,
     "",
     `Name: ${b.name}`,
-    `Contact: ${b.contact}`,
+    `Email: ${b.email}`,
     `Slot: ${b.label}`,
     `Topic: ${b.topic}`,
     b.notes ? `Notes: ${b.notes}` : "",

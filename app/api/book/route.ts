@@ -1,5 +1,6 @@
 import { EMAIL, SERVICES, TIMES } from "@/lib/data";
-import { looksLikeEmail, renderOwnerEmail, renderVisitorEmail, type Booking } from "@/lib/bookingEmail";
+import { renderOwnerEmail, renderVisitorEmail, type Booking } from "@/lib/bookingEmail";
+import { EMAIL_ERROR, isValidEmail, normalizeEmail } from "@/lib/validate";
 
 /**
  * Receives the "Schedule a meeting" form and emails it, fully branded, through Resend.
@@ -49,14 +50,15 @@ export async function POST(req: Request) {
 
   const b: Booking = {
     name: clean(body.name, 80),
-    contact: clean(body.contact, 120),
+    email: normalizeEmail(clean(body.email, 254)),
     topic: clean(body.topic, 80),
     notes: clean(body.notes, 1500),
     date: clean(body.date, 10),
     time: clean(body.time, 8),
     label: clean(body.label, 60),
   };
-  if (!b.name || !b.contact) return Response.json({ ok: false, error: "Please add your name and an email or phone number." }, { status: 400 });
+  if (!b.name) return Response.json({ ok: false, error: "Please add your name." }, { status: 400 });
+  if (!isValidEmail(b.email)) return Response.json({ ok: false, error: EMAIL_ERROR }, { status: 400 });
   if (!/^\d{4}-\d{2}-\d{2}$/.test(b.date) || !TIMES.includes(b.time) || !b.label) return Response.json({ ok: false, error: "Please choose a day and a time first." }, { status: 400 });
   if (!TOPICS.has(b.topic)) b.topic = "Not sure yet";
 
@@ -65,15 +67,15 @@ export async function POST(req: Request) {
   const owner = renderOwnerEmail(b);
   const delivered = await send(key, {
     from, to: [to], subject: owner.subject, html: owner.html, text: owner.text,
-    ...(looksLikeEmail(b.contact) ? { reply_to: b.contact } : {}),
+    reply_to: b.email,
   });
   if (!delivered) return Response.json({ ok: false, reason: "send_failed" }, { status: 502 });
 
   // Optional confirmation to the visitor; never blocks or fails the request.
   const confirmFrom = process.env.BOOKING_CONFIRM_FROM;
-  if (confirmFrom && looksLikeEmail(b.contact)) {
+  if (confirmFrom) {
     const v = renderVisitorEmail(b);
-    await send(key, { from: confirmFrom, to: [b.contact], reply_to: EMAIL, subject: v.subject, html: v.html, text: v.text });
+    await send(key, { from: confirmFrom, to: [b.email], reply_to: EMAIL, subject: v.subject, html: v.html, text: v.text });
   }
   return Response.json({ ok: true });
 }
