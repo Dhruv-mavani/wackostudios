@@ -35,7 +35,7 @@ function waDigits(contact: string) {
 }
 
 /** Google Calendar "add event" link for a 30 minute slot. The scheduler's times are IST (UTC+5:30). */
-function calendarUrl(b: Booking, title: string) {
+export function calendarUrl(b: Pick<Booking, "date" | "time" | "topic">, title: string) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(b.date);
   const t = /^(\d{1,2}):(\d{2}) (AM|PM)$/.exec(b.time);
   if (!m || !t) return null;

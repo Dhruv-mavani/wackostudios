@@ -299,36 +299,36 @@ footer button:hover{color:var(--orange)}
 .services .eyebrow,.clients .eyebrow,.faq .eyebrow{color:#B0420C}
 
 /* ---------- LOADING ---------- */
-/* While html.is-loading the page shows only the logo, breathing in a warm glow. When loading ends, the logo stays
+/* While html.is-loading:has(#intro) the page shows only the logo, breathing in a warm glow. When loading ends, the logo stays
    exactly where it is and everything else builds in around it. */
 /* --s0: loading size as a fraction of the page logo. --dy: nudges it to the true screen centre (the tagline and cue,
    still invisible, push the page logo above centre). */
 .logo-pulse{display:flex;--s0:.6;--dy:96px}
 @media(max-width:760px){.logo-pulse{--s0:.8;--dy:80px}}
-html.is-loading{overflow:hidden}
-html.is-loading .logo-pulse{animation:logo-breathe 1.5s ease-in-out infinite}
+html.is-loading:has(#intro){overflow:hidden}
+html.is-loading:has(#intro) .logo-pulse{animation:logo-breathe 1.5s ease-in-out infinite}
 /* Both keyframes meet at the same rest pose, so the handoff from breathing to growing has no jump. */
 html:not(.is-loading) .logo-pulse{animation:logo-grow 1.4s cubic-bezier(.22,.8,.2,1) both}
 @keyframes logo-breathe{0%,100%{transform:translateY(var(--dy)) scale(var(--s0));filter:drop-shadow(0 0 0 rgba(230,106,44,0))}50%{transform:translateY(var(--dy)) scale(calc(var(--s0)*1.1));filter:drop-shadow(0 0 26px rgba(230,106,44,.85))}}
 @keyframes logo-grow{from{transform:translateY(var(--dy)) scale(var(--s0));filter:drop-shadow(0 0 0 rgba(230,106,44,0))}40%{filter:drop-shadow(0 0 28px rgba(230,106,44,.55))}to{transform:none;filter:drop-shadow(0 0 0 rgba(230,106,44,0))}}
 
 .stage-glow{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(46% 42% at 50% 50%,rgba(230,106,44,.55),rgba(230,106,44,.14) 52%,transparent 76%)}
-html.is-loading .stage-glow{animation:glow-pulse 1.5s ease-in-out infinite}
+html.is-loading:has(#intro) .stage-glow{animation:glow-pulse 1.5s ease-in-out infinite}
 html:not(.is-loading) .stage-glow{animation:glow-out 1.4s ease forwards}
 @keyframes glow-pulse{0%,100%{opacity:.35;transform:scale(.92)}50%{opacity:1;transform:scale(1.08)}}
 @keyframes glow-out{from{opacity:.35;transform:scale(.92)}to{opacity:0;transform:scale(1.2)}}
 
 .stage-bg{transition:opacity 1.4s ease .25s}
-html.is-loading .stage-bg{opacity:0}
+html.is-loading:has(#intro) .stage-bg{opacity:0}
 .fw{animation:fw-in 1s ease both}
 @keyframes fw-in{from{opacity:0}}
-html.is-loading .fw{visibility:hidden;animation-play-state:paused}
-html.is-loading :is(.tagline,.cue){animation-play-state:paused}
-html.is-loading main>:not(.intro){visibility:hidden}
+html.is-loading:has(#intro) .fw{visibility:hidden;animation-play-state:paused}
+html.is-loading:has(#intro) :is(.tagline,.cue){animation-play-state:paused}
+html.is-loading:has(#intro) main>:not(.intro){visibility:hidden}
 .nav{transition:transform .9s cubic-bezier(.2,.8,.2,1) .5s,opacity .8s ease .5s}
 .rail{transition:opacity .8s ease .7s}
-html.is-loading .nav{transform:translateX(-50%) translateY(-26px);opacity:0}
-html.is-loading .rail{opacity:0}
+html.is-loading:has(#intro) .nav{transform:translateX(-50%) translateY(-26px);opacity:0}
+html.is-loading:has(#intro) .rail{opacity:0}
 
 /* ---------- SERVICE CARD ART ---------- */
 /* Illustrations (lib/serviceArt.tsx) read these colours; they flip when the card turns orange. */
@@ -395,3 +395,24 @@ html.is-loading .rail{opacity:0}
 @keyframes svc-scrub{from{transform:translateX(-38px)}to{transform:translateX(38px)}}
 @keyframes svc-drop{0%{transform:translateY(-14px);opacity:0}20%{opacity:1}70%{transform:translateY(30px);opacity:1}80%,100%{transform:translateY(36px);opacity:0}}
 @keyframes svc-badge{0%,55%{transform:scale(0)}68%{transform:scale(1.2)}76%,100%{transform:scale(1)}}
+
+/* ---------- THANK YOU PAGE (/thank-you) ---------- */
+.ty{position:relative;min-height:100vh;min-height:100svh;background:var(--navy);color:var(--white);display:flex;align-items:center;overflow:hidden;padding:110px 0 80px}
+.ty .bw{position:absolute;right:-6vw;top:-5vw;width:clamp(220px,34vw,520px);height:auto;color:var(--orange);pointer-events:none}
+.ty .bw2{right:auto;top:auto;left:-5vw;bottom:-6vw;width:clamp(120px,18vw,260px);color:var(--navy-3)}
+.ty-in{position:relative;z-index:1;max-width:1280px}
+.ty-logo{display:block;width:124px;aspect-ratio:1578/549;background:var(--logo) center/contain no-repeat;margin-bottom:46px}
+.ty h1{font-family:var(--f-display);font-weight:800;font-size:clamp(46px,8.4vw,112px);line-height:.95;letter-spacing:-.035em;margin:0}
+.ty h1 em{font-style:normal;color:var(--orange)}
+.ty-card{display:grid;grid-template-columns:auto 1fr;gap:12px 24px;background:var(--navy-2);border:1px solid var(--line);border-radius:24px;padding:22px 26px;margin:34px 0 0;max-width:540px}
+.ty-card dt{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);align-self:center}
+.ty-card dd{margin:0;font-weight:600;font-size:17px}
+.ty-steps{list-style:none;counter-reset:s;padding:0;margin:34px 0 0;display:grid;gap:14px;max-width:560px}
+.ty-steps li{counter-increment:s;display:flex;gap:14px;align-items:flex-start;color:var(--dim);font-size:16px;line-height:1.5}
+.ty-steps li::before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:var(--orange);color:var(--navy);display:grid;place-items:center;font-weight:800;font-size:13px;font-family:var(--f-display)}
+.ty-act{display:flex;flex-wrap:wrap;gap:12px;margin-top:38px}
+.ty-note{margin:22px 0 0;font-size:14px;color:var(--dim)}
+.ty-in>*{animation:ty-in .8s cubic-bezier(.2,.8,.2,1) both}
+.ty-in>:nth-child(2){animation-delay:.06s}.ty-in>:nth-child(3){animation-delay:.12s}.ty-in>:nth-child(4){animation-delay:.18s}
+.ty-in>:nth-child(5){animation-delay:.24s}.ty-in>:nth-child(6){animation-delay:.3s}.ty-in>:nth-child(7){animation-delay:.36s}.ty-in>:nth-child(8){animation-delay:.42s}
+@keyframes ty-in{from{opacity:0;transform:translateY(22px)}}

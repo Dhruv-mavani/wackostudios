@@ -39,7 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {children}
         {/* Without JS the loading screen can never finish, so skip it and show the page. */}
         <noscript>
-          <style>{`html.is-loading{overflow:auto}html.is-loading .logo-pulse,html.is-loading .stage-glow{animation:none}html.is-loading .stage-bg{opacity:1}html.is-loading .fw,html.is-loading main>*{visibility:visible}html.is-loading :is(.fw,.tagline,.cue){animation-play-state:running}html.is-loading .rail{opacity:1}html.is-loading .nav{opacity:1;transform:translateX(-50%)}`}</style>
+          <style>{`html.is-loading:has(#intro){overflow:auto}html.is-loading:has(#intro) .logo-pulse,html.is-loading:has(#intro) .stage-glow{animation:none}html.is-loading:has(#intro) .stage-bg{opacity:1}html.is-loading:has(#intro) .fw,html.is-loading:has(#intro) main>*{visibility:visible}html.is-loading:has(#intro) :is(.fw,.tagline,.cue){animation-play-state:running}html.is-loading:has(#intro) .rail{opacity:1}html.is-loading:has(#intro) .nav{opacity:1;transform:translateX(-50%)}`}</style>
         </noscript>
       </body>
     </html>

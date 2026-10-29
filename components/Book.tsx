@@ -35,7 +35,6 @@ export default function Book() {
   const [err, setErr] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
   const [copyLabel, setCopyLabel] = useState("Copy details");
   const [form, setForm] = useState({ name: "", contact: "", topic: "Not sure yet", notes: "" });
 
@@ -101,16 +100,22 @@ export default function Book() {
         else { setErr(data.message || "Something went wrong sending your request. Please try again."); return; }
       }
 
-      if (delivered) { setSent(true); setMsg(text); }
-      else { setSent(false); setMsg(text); } // nothing configured: ready-made WhatsApp / email request
+      if (delivered) {
+        // Hand over to the confirmation page (a real URL, so ad platforms can count it as a conversion). Personal
+        // details travel in sessionStorage, never in the URL.
+        try { sessionStorage.setItem("ws:booking", JSON.stringify({ name: form.name.trim(), label, topic: form.topic, date: isoDate(days[day!]), time: TIMES[time!] })); } catch { /* storage blocked: the page still works without it */ }
+        // A full page load on purpose: ad tags count conversions most reliably on a real page view.
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+        window.location.assign("/thank-you");
+        return;
+      }
+      setMsg(text); // nothing configured: ready-made WhatsApp / email request, nothing was sent
     } catch {
       setErr("We couldn't send that right now. Please try again, or message us on WhatsApp.");
     } finally {
       setSending(false);
     }
   };
-
-  const reset = () => { setMsg(null); setSent(false); setDay(null); setTime(null); setForm({ name: "", contact: "", topic: "Not sure yet", notes: "" }); };
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setForm({ ...form, [k]: e.target.value });
   const clearErr = () => setErr("");
@@ -168,28 +173,16 @@ export default function Book() {
             </div>
           ) : (
             <div className="done">
-              <h3>{sent ? "Request sent" : "Your request is ready"}</h3>
+              <h3>Your request is ready</h3>
               <div className="sum">
                 {msg.split("\n").slice(1).map((l, i) => { const k = l.indexOf(":"); return <div key={i}><b>{l.slice(0, k)}</b>{l.slice(k)}</div>; })}
               </div>
-              {sent ? (
-                <>
-                  <div className="row">
-                    <a className="btn" href={`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`} target="_blank" rel="noopener">Also message us on WhatsApp</a>
-                    <button className="btn ghost" type="button" onClick={reset}>Book another</button>
-                  </div>
-                  <small>Thanks! Your request is with the team and we will confirm your slot using the contact you gave.</small>
-                </>
-              ) : (
-                <>
-                  <div className="row">
-                    <a className="btn" href={`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`} target="_blank" rel="noopener">Send on WhatsApp</a>
-                    <button className="btn ghost" type="button" onClick={async () => { setCopyLabel(await copyText(msg)); setTimeout(() => setCopyLabel("Copy details"), 1600); }}>{copyLabel}</button>
-                    <button className="btn ghost" type="button" onClick={() => setMsg(null)}>Change slot</button>
-                  </div>
-                  <small>Nothing has been sent yet. Tap Send on WhatsApp, or email the details to <span className="mail">{EMAIL}</span>, and we will confirm your slot.</small>
-                </>
-              )}
+              <div className="row">
+                <a className="btn" href={`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`} target="_blank" rel="noopener">Send on WhatsApp</a>
+                <button className="btn ghost" type="button" onClick={async () => { setCopyLabel(await copyText(msg)); setTimeout(() => setCopyLabel("Copy details"), 1600); }}>{copyLabel}</button>
+                <button className="btn ghost" type="button" onClick={() => setMsg(null)}>Change slot</button>
+              </div>
+              <small>Nothing has been sent yet. Tap Send on WhatsApp, or email the details to <span className="mail">{EMAIL}</span>, and we will confirm your slot.</small>
             </div>
           )}
         </div>

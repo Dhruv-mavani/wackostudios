@@ -14,6 +14,8 @@ export default function Loader() {
   useEffect(() => {
     const html = document.documentElement;
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Only the home page has the logo intro; on any other page there is nothing to wait for.
+    if (!document.getElementById("intro")) { html.classList.remove("is-loading"); return; }
     if (!location.hash) scrollTo(0, 0);
 
     let opened = false, tWait = 0, tMax = 0;
