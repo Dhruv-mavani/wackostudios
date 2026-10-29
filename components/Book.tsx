@@ -60,33 +60,49 @@ export default function Book() {
     setErr("");
     const text = message();
 
-    // No key configured: fall back to a ready-made WhatsApp / email request, nothing is sent.
-    if (!WEB3FORMS_KEY) { setSent(false); setMsg(text); return; }
     // Honeypot: real visitors never tick this hidden box.
     if (new FormData(e.currentTarget).get("botcheck")) return;
 
     const contact = form.contact.trim();
     setSending(true);
     try {
-      const res = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          access_key: WEB3FORMS_KEY,
-          subject: `New meeting request: ${label} (${form.name.trim()})`,
-          from_name: "Wacko Studios website",
-          name: form.name.trim(),
-          ...(looksLikeEmail(contact) ? { email: contact } : { phone: contact }),
-          contact,
-          when: label,
-          topic: form.topic,
-          notes: form.notes.trim() || "-",
-          message: text,
-        }),
-      });
-      const data = await res.json();
-      if (data.success) { setSent(true); setMsg(text); }
-      else setErr(data.message || "Something went wrong sending your request. Please try again.");
+      // 1) Our own route: sends the fully branded email. 2) If it is unavailable, Web3Forms as a safety net.
+      let delivered = false;
+      try {
+        const res = await fetch("/api/book", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: form.name.trim(), contact, topic: form.topic, notes: form.notes.trim(), date: isoDate(days[day!]), time: TIMES[time!], label }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.ok) delivered = true;
+        else if (res.status === 400 || res.status === 429) { setErr(data.error || "Please check your details and try again."); return; }
+      } catch { /* network hiccup: fall through to the backup */ }
+
+      if (!delivered && WEB3FORMS_KEY) {
+        const res = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({
+            access_key: WEB3FORMS_KEY,
+            subject: `New meeting request: ${label} (${form.name.trim()})`,
+            from_name: "Wacko Studios website",
+            name: form.name.trim(),
+            ...(looksLikeEmail(contact) ? { email: contact } : { phone: contact }),
+            contact,
+            when: label,
+            topic: form.topic,
+            notes: form.notes.trim() || "-",
+            message: text,
+          }),
+        });
+        const data = await res.json();
+        if (data.success) delivered = true;
+        else { setErr(data.message || "Something went wrong sending your request. Please try again."); return; }
+      }
+
+      if (delivered) { setSent(true); setMsg(text); }
+      else { setSent(false); setMsg(text); } // nothing configured: ready-made WhatsApp / email request
     } catch {
       setErr("We couldn't send that right now. Please try again, or message us on WhatsApp.");
     } finally {
