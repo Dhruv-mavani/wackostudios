@@ -120,8 +120,8 @@ html.has-cur .stage>.fw svg{animation:none;will-change:transform}
 /* ---------- SERVICES ---------- */
 .services{position:relative;background:var(--grey);color:var(--navy)}
 .sv-stick{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
-.ghost{position:absolute;left:0;right:0;bottom:11%;text-align:center;font-family:var(--f-display);font-weight:800;font-size:clamp(54px,13vw,210px);line-height:1;letter-spacing:-.04em;text-transform:uppercase;white-space:nowrap;color:rgba(23,32,51,.065);pointer-events:none}
-.ghost.pop{animation:pop .6s cubic-bezier(.2,.8,.2,1)}
+.bgword{position:absolute;left:0;right:0;bottom:11%;text-align:center;font-family:var(--f-display);font-weight:800;font-size:clamp(54px,13vw,210px);line-height:1;letter-spacing:-.04em;text-transform:uppercase;white-space:nowrap;color:rgba(23,32,51,.065);pointer-events:none}
+.bgword.pop{animation:pop .6s cubic-bezier(.2,.8,.2,1)}
 @keyframes pop{from{opacity:0;transform:translateY(40px) scale(.96)}to{opacity:1;transform:none}}
 .sv-row{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;gap:clamp(18px,2.4vw,34px);width:max-content;padding-left:var(--gut-l);padding-right:var(--gut-r);will-change:transform}
 .sv-intro{flex:none;width:clamp(290px,82vw,620px);padding-right:clamp(0px,4vw,60px)}
@@ -279,7 +279,7 @@ footer button:hover{color:var(--orange)}
 .rm .manifesto .mw{opacity:1!important}
 .rm .sv-stick{position:relative;height:auto;padding:70px 0 90px}
 .rm .sv-row{position:relative;overflow-x:auto;transform:none!important;height:auto;padding-bottom:30px}
-.rm .ghost,.rm .sv-hud,.rm .rail{display:none}
+.rm .bgword,.rm .sv-hud,.rm .rail{display:none}
 .rm .wk{position:relative;top:auto}
 .rm .mq-track{transform:none!important}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}

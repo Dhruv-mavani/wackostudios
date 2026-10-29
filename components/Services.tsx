@@ -7,7 +7,7 @@ export default function Services() {
   return (
     <section className="services" id="services" aria-label="Services">
       <div className="sv-stick" id="svStick">
-        <div className="ghost" id="ghost" aria-hidden="true">Services</div>
+        <div className="bgword" id="ghost" aria-hidden="true">Services</div>
         <div className="sv-row" id="svRow">
           <div className="sv-intro">
             <p className="eyebrow">What we do</p>
