@@ -325,9 +325,9 @@ html.is-loading:has(#intro) .stage-bg{opacity:0}
 html.is-loading:has(#intro) .fw{visibility:hidden;animation-play-state:paused}
 html.is-loading:has(#intro) :is(.tagline,.cue){animation-play-state:paused}
 html.is-loading:has(#intro) main>:not(.intro){visibility:hidden}
-.nav{transition:transform .9s cubic-bezier(.2,.8,.2,1) .5s,opacity .8s ease .5s}
+.nav{transition:transform .9s cubic-bezier(.2,.8,.2,1) .5s}
 .rail{transition:opacity .8s ease .7s}
-html.is-loading:has(#intro) .nav{transform:translateX(-50%) translateY(-26px);opacity:0}
+html.is-loading:has(#intro) .nav{transform:translateX(-50%) translateY(-130px)}
 html.is-loading:has(#intro) .rail{opacity:0}
 
 /* ---------- SERVICE CARD ART ---------- */
