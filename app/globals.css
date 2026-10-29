@@ -416,3 +416,21 @@ html.is-loading:has(#intro) .rail{opacity:0}
 .ty-in>:nth-child(2){animation-delay:.06s}.ty-in>:nth-child(3){animation-delay:.12s}.ty-in>:nth-child(4){animation-delay:.18s}
 .ty-in>:nth-child(5){animation-delay:.24s}.ty-in>:nth-child(6){animation-delay:.3s}.ty-in>:nth-child(7){animation-delay:.36s}.ty-in>:nth-child(8){animation-delay:.42s}
 @keyframes ty-in{from{opacity:0;transform:translateY(22px)}}
+
+/* ---------- TESTIMONIALS (hidden until lib/testimonials.ts has real entries) ---------- */
+.proof{position:relative;background:var(--white);color:var(--navy);padding:clamp(90px,12vw,160px) 0 clamp(90px,11vw,140px)}
+.proof h2{max-width:14ch}
+.proof .eyebrow{color:#B0420C}
+.proof-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:22px;margin-top:clamp(36px,5vw,64px)}
+.proof-card{position:relative;margin:0;background:var(--grey);border-radius:28px;padding:30px 28px 26px;display:flex;flex-direction:column;gap:18px;transition:transform .3s,box-shadow .3s,background .3s}
+.proof-card::before{content:"\201C";position:absolute;right:22px;top:6px;font-family:var(--f-display);font-weight:800;font-size:96px;line-height:1;color:var(--orange);opacity:.9;pointer-events:none}
+.proof-card:hover{transform:translateY(-6px);box-shadow:0 24px 50px rgba(23,32,51,.12)}
+.proof-tag{align-self:flex-start;border:1px solid rgba(23,32,51,.35);border-radius:999px;padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.stars{display:inline-flex;gap:3px}
+.stars svg{width:20px;height:20px;fill:rgba(23,32,51,.16)}
+.stars svg.on{fill:var(--orange)}
+.proof-card blockquote{margin:0;font-size:clamp(16px,1.35vw,18px);line-height:1.6;font-weight:500;flex:1}
+.proof-card figcaption{display:flex;align-items:center;gap:14px}
+.proof-av{flex:none;width:46px;height:46px;border-radius:50%;background:var(--navy);color:var(--orange);display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:15px}
+.proof-card figcaption b{display:block;font-family:var(--f-display);font-weight:700;font-size:16px;line-height:1.2}
+.proof-card figcaption small{display:block;font-size:13px;color:var(--ink-dim);margin-top:2px}
