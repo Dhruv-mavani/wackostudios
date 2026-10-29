@@ -84,7 +84,7 @@ h2 em{font-style:normal;color:var(--orange)}
 .fw{position:absolute;color:var(--orange);will-change:transform}
 .dot-grid{position:absolute;inset:0;width:100%;height:100%;display:block}
 /* With a mouse, the intro arrows turn to face the cursor (IntroFx) instead of spinning. */
-html.has-cur .stage>.fw svg,html.has-cur .stage>.fw .fw-rot{animation:none;will-change:transform}
+html.has-cur .stage>.fw svg{animation:none;will-change:transform}
 .fw svg{display:block;width:100%;height:auto;animation:spin 26s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .logo-area{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,3.5vh,36px);padding:0 var(--gut-r) 0 var(--gut-l)}
@@ -447,14 +447,7 @@ html.is-loading:has(#intro) .rail{opacity:0}
 @keyframes gl-drift-a{to{transform:translate3d(7vmax,5vmax,0) scale(1.08)}}
 @keyframes gl-drift-b{to{transform:translate3d(-6vmax,-4vmax,0) scale(1.1)}}
 @keyframes gl-drift-c{to{transform:translate3d(-5vmax,6vmax,0) scale(.92)}}
-/* ---------- LIQUID GLASS: LOGO LETTERS AND ARROWS ---------- */
-/* Never put filter, opacity below 1 or mix-blend-mode on an ancestor of a .lg-glass: it would stop the backdrop blur
-   seeing the gradient background behind it. */
-.lg-glass{position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.86),rgba(255,255,255,.58) 46%,rgba(255,255,255,.76));-webkit-backdrop-filter:blur(9px) saturate(130%) brightness(1.3);backdrop-filter:blur(9px) saturate(130%) brightness(1.3)}
-.lg-glass.orange{background:linear-gradient(135deg,rgba(255,184,120,.82),rgba(230,106,44,.62) 50%,rgba(178,62,14,.74));-webkit-backdrop-filter:blur(5px) saturate(190%);backdrop-filter:blur(5px) saturate(190%)}
-.lg-edge{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible;pointer-events:none}
-.fw-rot{position:relative;width:96%;aspect-ratio:128/120;margin:0 auto;will-change:transform}
-.fw .fw-rot{animation:spin 26s linear infinite}
+.slice-fill{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
 
 /* ---------- 3D TILT (logo follows the cursor a little) ---------- */
 /* --gx/--gy (-1..1) come from IntroFx. --tf (1 -> 0) comes from ScrollEngine and switches the effect off as the logo

@@ -27,7 +27,7 @@ export default function IntroFx() {
     const fine = matchMedia("(hover:hover) and (pointer:fine)").matches;
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const arrows = fine && !reduced
-      ? Array.from(document.querySelectorAll<HTMLElement>(".stage > .fw")).map((box) => ({ box, svg: (box.querySelector(".fw-rot") ?? box.querySelector("svg")) as HTMLElement, angle: 0, init: false }))
+      ? Array.from(document.querySelectorAll<HTMLElement>(".stage > .fw")).map((box) => ({ box, svg: box.querySelector("svg")!, angle: 0, init: false }))
       : [];
 
     // Until the cursor moves, arrows point at the middle of the screen (the logo) and the dots rest in a plain grid.
