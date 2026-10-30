@@ -3,7 +3,6 @@ import { SITE, SITE_URL } from "./seo";
 
 /**
  * Branded HTML emails for the "Schedule a meeting" form.
- * The header is an animated GIF (public/email/header.gif): Gmail and most mail apps strip CSS animation but play GIFs.
  * Email clients are stuck in 2005: everything is table layout with inline styles, web-safe font fallbacks, and
  * bulletproof buttons. Colours match the site (navy #172033, orange #E66A2C, grey #F4F4F4).
  */
@@ -71,8 +70,8 @@ const row = (label: string, valueHtml: string) => `
 </tr>`;
 
 const header = `
-<tr><td bgcolor="${C.navy}" style="${solid(C.navy)}padding:0;line-height:0;font-size:0">
-  <a href="${SITE_URL}" style="text-decoration:none"><img src="${SITE_URL}/email/header.gif" width="600" height="100" alt="Wacko Studios" style="display:block;border:0;outline:none;width:100%;max-width:600px;height:auto"></a>
+<tr><td bgcolor="${C.navy}" style="${solid(C.navy)}padding:26px 32px 22px">
+  <a href="${SITE_URL}" style="text-decoration:none"><img src="${SITE_URL}/logo.png" width="150" alt="Wacko Studios" style="display:block;border:0;outline:none;width:150px;height:auto"></a>
 </td></tr>
 <tr><td bgcolor="${C.orange}" style="${solid(C.orange)}height:6px;line-height:6px;font-size:0">&nbsp;</td></tr>`;
 
