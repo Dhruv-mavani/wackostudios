@@ -480,4 +480,16 @@ html.is-loading:has(#intro) .rail{opacity:0}
 @media(prefers-reduced-motion:reduce){.reel-frame{transition:none}}
 /* r2 */
 
-/* r3 */
+/* Client logo rows can be dragged sideways; vertical swipes still scroll the page */
+.mq{touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+.mq.grabbing{cursor:grabbing}
+.logo-tile img{-webkit-user-drag:none;pointer-events:none}
+.logo-tile img.sq{height:64px}
+.rm .mq{overflow-x:auto;touch-action:auto}
+@media(max-width:760px){
+  .logo-tile{padding:12px 20px;margin-right:12px;height:68px;border-radius:18px}
+  .logo-tile img{height:34px;max-width:140px}
+  .logo-tile img.sq{height:46px}
+  .mq+.mq{margin-top:12px}
+}
+/* r5 */

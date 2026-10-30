@@ -8,7 +8,7 @@ const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const eio = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-type Marquee = { track: HTMLElement; dir: number; speed: number; x: number | undefined; L: number };
+type Marquee = { track: HTMLElement; dir: number; speed: number; x: number | undefined; L: number; drag?: { id: number; sx: number; mx: number; lx: number; lt: number }; glide: number };
 
 /**
  * Drives every scroll-linked effect from a single rAF loop: the intro logo breaking apart and flooding orange,
@@ -33,13 +33,46 @@ export default function ScrollEngine() {
     const svBar = $("#svBar"), svCount = $("#svCount"), svName = $("#svName");
     const railFill = $("#railFill"), railWedge = $("#railWedge"), bigWedge = $("#bigWedge");
     const wks = $$(".wk");
-    const mqs: Marquee[] = $$("[data-mq]").map((track) => ({ track, dir: +(track.dataset.dir ?? -1) || -1, speed: +(track.dataset.speed ?? 0.6) || 0.6, x: undefined, L: 1 }));
+    const mqs: Marquee[] = $$("[data-mq]").map((track) => ({ track, dir: +(track.dataset.dir ?? -1) || -1, speed: +(track.dataset.speed ?? 0.6) || 0.6, x: undefined, L: 1, glide: 0 }));
 
     const measure = () => {
       vw = innerWidth; vh = innerHeight;
       if (!RM) { svMax = Math.max(0, svRow.offsetWidth - vw); sv.style.height = svStick.offsetHeight + svMax + "px"; }
       mqs.forEach((m) => { m.L = m.track.scrollWidth / 4; if (m.x === undefined) m.x = m.dir < 0 ? 0 : -m.L; });
     };
+
+    /* Drag-to-scroll for the client logo rows (mouse, touch and pen). The row keeps drifting on its own; a drag
+       takes over while held, and a quick flick carries on for a moment before the drift resumes. */
+    const wrap = (m: Marquee) => { let x = m.x ?? 0; while (x <= -m.L) x += m.L; while (x > 0) x -= m.L; m.x = x; };
+    const dragOff: (() => void)[] = [];
+    mqs.filter((m) => m.track.hasAttribute("data-drag")).forEach((m) => {
+      const el = m.track.parentElement!;
+      const down = (e: PointerEvent) => {
+        if (RM || (e.pointerType === "mouse" && e.button !== 0)) return;
+        m.drag = { id: e.pointerId, sx: e.clientX, mx: m.x ?? 0, lx: e.clientX, lt: performance.now() };
+        m.glide = 0;
+        el.setPointerCapture(e.pointerId);
+        el.classList.add("grabbing");
+      };
+      const move = (e: PointerEvent) => {
+        const d = m.drag;
+        if (!d || e.pointerId !== d.id) return;
+        const now = performance.now();
+        m.x = d.mx + (e.clientX - d.sx);
+        wrap(m);
+        m.glide = (e.clientX - d.lx) / Math.max(1, now - d.lt) * 16; // px per frame
+        d.lx = e.clientX; d.lt = now;
+      };
+      const up = (e: PointerEvent) => {
+        if (!m.drag || e.pointerId !== m.drag.id) return;
+        if (performance.now() - m.drag.lt > 90) m.glide = 0; // held still before letting go: no flick
+        m.drag = undefined;
+        el.classList.remove("grabbing");
+      };
+      el.addEventListener("pointerdown", down); el.addEventListener("pointermove", move);
+      el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
+      dragOff.push(() => { el.removeEventListener("pointerdown", down); el.removeEventListener("pointermove", move); el.removeEventListener("pointerup", up); el.removeEventListener("pointercancel", up); });
+    });
 
     const io = new IntersectionObserver(
       (es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in-view"); io.unobserve(e.target); } }),
@@ -139,10 +172,12 @@ export default function ScrollEngine() {
 
         /* marquees */
         mqs.forEach((m) => {
+          if (m.drag) { m.track.style.transform = `translate3d(${m.x}px,0,0)`; return; } // held: follow the pointer only
           const step = m.speed + Math.min(Math.abs(vel), 70) * 0.14;
-          m.x = (m.x ?? 0) + m.dir * step;
-          if (m.dir < 0 && m.x <= -m.L) m.x += m.L;
-          if (m.dir > 0 && m.x >= 0) m.x -= m.L;
+          m.x = (m.x ?? 0) + m.dir * step + m.glide;
+          m.glide *= 0.94;
+          if (Math.abs(m.glide) < 0.05) m.glide = 0;
+          wrap(m);
           m.track.style.transform = `translate3d(${m.x}px,0,0)`;
         });
 
@@ -164,6 +199,7 @@ export default function ScrollEngine() {
     return () => {
       cancelAnimationFrame(raf); io.disconnect();
       removeEventListener("resize", measure); removeEventListener("load", measure);
+      dragOff.forEach((f) => f());
       root.classList.remove("rm");
     };
   }, []);

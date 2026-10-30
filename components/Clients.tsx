@@ -8,12 +8,12 @@ const ROWS = [CLIENTS.slice(0, 10), CLIENTS.slice(10)];
 function Row({ logos, dir }: { logos: typeof CLIENTS; dir: -1 | 1 }) {
   return (
     <div className="mq" aria-hidden="true">
-      <div className="mq-track" data-mq data-dir={dir} data-speed="0.55">
+      <div className="mq-track" data-mq data-drag data-dir={dir} data-speed="0.55">
         {[0, 1, 2, 3].map((k) => (
           <span key={k} style={{ display: "contents" }}>
             {logos.map((c) => (
               <div className="logo-tile" key={c.name}>
-                <Image src={c.logo} alt="" width={c.w} height={c.h} loading="eager" style={c.w / c.h < 1.4 ? { height: 64 } : undefined} />
+                <Image src={c.logo} alt="" width={c.w} height={c.h} loading="eager" draggable={false} className={c.w / c.h < 1.4 ? "sq" : undefined} />
               </div>
             ))}
           </span>
