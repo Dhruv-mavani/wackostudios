@@ -25,6 +25,13 @@ const C = { navy: "#172033", navy2: "#1F2A42", orange: "#E66A2C", grey: "#F4F4F4
 const FONT = "'Poppins','Segoe UI',Helvetica,Arial,sans-serif";
 const FONT_BODY = "'Montserrat','Segoe UI',Helvetica,Arial,sans-serif";
 
+/**
+ * A solid background that Gmail's mobile dark mode leaves alone. Gmail re-colours plain `background-color` values
+ * (a deep navy turns into a flat grey), but not a `background-image`, so the same colour is also painted as a
+ * one-colour gradient. The `bgcolor` attribute on cells is the fallback for clients that ignore both.
+ */
+const solid = (c: string) => `background:${c};background-image:linear-gradient(${c},${c});`;
+
 export const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
@@ -50,8 +57,8 @@ export function calendarUrl(b: Pick<Booking, "date" | "time" | "topic">, title: 
 
 const button = (href: string, label: string, kind: "primary" | "dark" | "ghost" = "primary") => {
   const style =
-    kind === "primary" ? `background:${C.orange};color:${C.navy};border:2px solid ${C.orange};`
-    : kind === "dark" ? `background:${C.navy};color:${C.white};border:2px solid ${C.navy};`
+    kind === "primary" ? `${solid(C.orange)}color:${C.navy};border:2px solid ${C.orange};`
+    : kind === "dark" ? `${solid(C.navy)}color:${C.white};border:2px solid ${C.navy};`
     : `background:${C.white};color:${C.navy};border:2px solid ${C.navy};`;
   return `<td style="padding:0 10px 10px 0"><a href="${esc(href)}" style="${style}display:inline-block;padding:13px 22px;border-radius:999px;font-family:${FONT};font-weight:700;font-size:14px;line-height:1;text-decoration:none">${esc(label)}</a></td>`;
 };
@@ -63,13 +70,13 @@ const row = (label: string, valueHtml: string) => `
 </tr>`;
 
 const header = `
-<tr><td style="background:${C.navy};padding:26px 32px 22px">
+<tr><td bgcolor="${C.navy}" style="${solid(C.navy)}padding:26px 32px 22px">
   <a href="${SITE_URL}" style="text-decoration:none"><img src="${SITE_URL}/logo.png" width="150" alt="Wacko Studios" style="display:block;border:0;outline:none;width:150px;height:auto"></a>
 </td></tr>
-<tr><td style="background:${C.orange};height:6px;line-height:6px;font-size:0">&nbsp;</td></tr>`;
+<tr><td bgcolor="${C.orange}" style="${solid(C.orange)}height:6px;line-height:6px;font-size:0">&nbsp;</td></tr>`;
 
 const footer = `
-<tr><td style="background:${C.navy};padding:28px 32px">
+<tr><td bgcolor="${C.navy}" style="${solid(C.navy)}padding:28px 32px">
   <p style="margin:0 0 10px;font-family:${FONT};font-weight:800;font-size:18px;color:${C.white}">Wacko Studios</p>
   <p style="margin:0 0 14px;font-family:${FONT_BODY};font-size:13px;line-height:1.6;color:#B8BFCC">${esc(SITE.tagline)}</p>
   <p style="margin:0;font-family:${FONT_BODY};font-size:13px;line-height:1.9;color:#B8BFCC">
@@ -92,7 +99,7 @@ const shell = (preheader: string, body: string) => `<!doctype html>
 </body></html>`;
 
 const hero = (eyebrow: string, label: string, sub: string) => `
-<tr><td style="background:${C.orange};padding:34px 32px 32px">
+<tr><td bgcolor="${C.orange}" style="${solid(C.orange)}padding:34px 32px 32px">
   <p style="margin:0 0 12px;font-family:${FONT_BODY};font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:${C.navy}">${esc(eyebrow)}</p>
   <p style="margin:0;font-family:${FONT};font-weight:800;font-size:34px;line-height:1.05;letter-spacing:-.02em;color:${C.navy}">${esc(label)}</p>
   <p style="margin:12px 0 0;font-family:${FONT_BODY};font-size:15px;font-weight:600;color:${C.navy}">${esc(sub)}</p>
