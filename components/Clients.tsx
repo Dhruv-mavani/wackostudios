@@ -2,7 +2,8 @@ import Image from "next/image";
 import { CLIENTS } from "@/lib/data";
 import Split from "./Split";
 
-const ROWS = [CLIENTS.slice(0, 10), CLIENTS.slice(10)];
+const HALF = Math.ceil(CLIENTS.length / 2);
+const ROWS = [CLIENTS.slice(0, HALF), CLIENTS.slice(HALF)];
 
 /** One scrolling row. ScrollEngine measures the track as 4 identical sets, so keep the repeat count at 4. */
 function Row({ logos, dir }: { logos: typeof CLIENTS; dir: -1 | 1 }) {

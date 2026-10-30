@@ -42,6 +42,10 @@ export const CLIENTS = [
   { name: "Zouk", logo: "/clients/zouk.webp", w: 236, h: 78 },
   { name: "Realme", logo: "/clients/realme.webp", w: 300, h: 90 },
   { name: "Myntra Creator School", logo: "/clients/myntra-creator-school.webp", w: 294, h: 96 },
+  { name: "The Realty Bazaar", logo: "/clients/the-realty-bazaar.webp", w: 564, h: 192 },
+  { name: "Villa 48", logo: "/clients/villa-48.webp", w: 456, h: 192 },
+  { name: "Siddhi Vinayak", logo: "/clients/siddhi-vinayak.webp", w: 270, h: 220 },
+  { name: "YCC (Yuva Champions Cricket)", logo: "/clients/ycc.webp", w: 549, h: 192 },
 ];
 export const TIMES = ["10:00 AM", "11:00 AM", "12:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"];
 
