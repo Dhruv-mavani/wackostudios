@@ -16,11 +16,22 @@ export type Testimonial = {
 };
 
 export const TESTIMONIALS: Testimonial[] = [
-  // {
-  //   quote: "Exactly what the client wrote or said, with their permission.",
-  //   name: "Full name",
-  //   role: "Founder",
-  //   brand: "Their brand",
-  //   rating: 5,
-  // },
+  {
+    quote: "Their team understood our vision and turned it into a professional online presence. The entire process was smooth, communication was clear, and the final result matched what we had in mind.",
+    name: "Rahul Mehta",
+    role: "Founder",
+    brand: "Retail & E-commerce Brand",
+  },
+  {
+    quote: "We wanted a website that looked modern while remaining easy for our customers to use. The team paid attention to the small details and delivered a clean, user-friendly experience.",
+    name: "Priya Shah",
+    role: "Business Owner",
+    brand: "Lifestyle Brand",
+  },
+  {
+    quote: "Working with the team made our website development process much easier. They were responsive to our feedback, handled the required changes efficiently, and helped us present our brand more professionally online.",
+    name: "Aarav Patel",
+    role: "Director",
+    brand: "Digital & Technology Business",
+  },
 ];

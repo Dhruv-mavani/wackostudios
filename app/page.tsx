@@ -6,6 +6,7 @@ import Band from "@/components/Band";
 import Services from "@/components/Services";
 import Work from "@/components/Work";
 import Clients from "@/components/Clients";
+import Reels from "@/components/Reels";
 import Testimonials from "@/components/Testimonials";
 import Book from "@/components/Book";
 import Contact from "@/components/Contact";
@@ -29,6 +30,7 @@ export default function Home() {
         <Band variant="orange" rev dir={1} style={{ marginTop: -30, marginBottom: -30 }} />
         <Work />
         <Clients />
+        <Reels />
         <Testimonials />
         <Band variant="navy" rev dir={-1} style={{ marginTop: -30, marginBottom: -30 }} />
         <Book />
