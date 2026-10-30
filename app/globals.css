@@ -472,7 +472,12 @@ html.is-loading:has(#intro) .rail{opacity:0}
 .reel-play{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;border:0;background:var(--orange);color:var(--navy);display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .3s,opacity .3s}
 .reel-play:hover{transform:scale(1.08)}
 .reel-play svg{width:26px;height:26px;fill:currentColor}
+.reel-fail{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:22px;text-align:center;background:rgba(23,32,51,.86);font-size:14px;z-index:2}
+.reel-fail p{margin:0}
+.reel-fail a{color:var(--orange);font-weight:700;text-decoration:underline}
 .reel-frame.on .reel-play{opacity:0}
 .reel-frame.on:hover .reel-play,.reel-frame.on .reel-play:focus-visible{opacity:1}
 @media(prefers-reduced-motion:reduce){.reel-frame{transition:none}}
 /* r2 */
+
+/* r3 */
