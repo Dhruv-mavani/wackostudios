@@ -91,9 +91,9 @@ html.has-cur .stage>.fw svg{animation:none;will-change:transform}
 .fw svg{display:block;width:100%;height:auto;animation:spin 26s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .logo-area{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,3.5vh,36px);padding:0 var(--gut-r) 0 var(--gut-l)}
-.logo-wrap{position:relative;transform-style:preserve-3d;width:min(66vw,500px,calc(46vh*1.248));aspect-ratio:1215/973;transform-origin:91% 61.8%}
+.logo-wrap{position:relative;transform-style:preserve-3d;width:min(66vw,500px,calc(46vh*1.248));aspect-ratio:1215/973;transform-origin:39.53% 35.7%}
 .slice{position:absolute;display:block;transform-style:preserve-3d}
-.apex{position:absolute;left:calc(1105.33/1214.83*100%);top:calc(601.58/973.5*100%);width:1px;height:1px;pointer-events:none}
+.apex{position:absolute;left:39.53%;top:35.7%;width:1px;height:1px;pointer-events:none}
 .wedge-fly{position:absolute;inset:0}
 .wedge{position:absolute;inset:0;width:100%;height:100%;overflow:visible;transform-origin:calc(1105.33/1214.83*100%) calc(601.58/973.5*100%)}
 .tagline{font-family:var(--f-display);font-weight:600;font-size:clamp(15px,2.1vw,24px);color:rgba(17,52,98,.72);margin:0;text-align:center;max-width:30ch;animation:fade 1s ease .45s both}
@@ -271,7 +271,6 @@ html.has-cur .stage>.fw svg{animation:none;will-change:transform}
 .ct-row .btn:hover{background:var(--white);color:var(--navy);box-shadow:none}
 @media(max-width:760px){.ct-row{grid-template-columns:auto 1fr}.ct-act{grid-column:1/-1;justify-content:flex-start}}
 footer{margin-top:clamp(60px,8vw,110px);padding-top:28px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;align-items:center;font-size:13px;color:var(--dim)}
-footer .mark{width:112px;aspect-ratio:1215/973;background:var(--logo) center/contain no-repeat}
 footer button{background:none;border:0;font-weight:700;color:var(--white);padding:6px 0}
 footer button:hover{color:var(--orange)}
 
@@ -306,7 +305,7 @@ footer button:hover{color:var(--orange)}
    exactly where it is and everything else builds in around it. */
 /* --s0: loading size as a fraction of the page logo. --dy: nudges it to the true screen centre (the tagline and cue,
    still invisible, push the page logo above centre). */
-.logo-pulse{display:flex;transform-style:preserve-3d;--s0:.6;--dy:96px}
+.logo-pulse{position:relative;display:flex;transform-style:preserve-3d;--s0:.6;--dy:96px}
 @media(max-width:760px){.logo-pulse{--s0:.8;--dy:80px}}
 html.is-loading:has(#intro){overflow:hidden}
 html.is-loading:has(#intro) .logo-pulse{animation:logo-breathe 1.5s ease-in-out infinite}
@@ -521,4 +520,43 @@ html:not(.is-loading) .stage-glow{animation:glow-out .9s ease forwards}
 @keyframes glow-out{from{opacity:1}to{opacity:0}}
 /* The logo keeps a faint breath (no glow, no filter so it stays 3D); it also gives the loader a loop boundary to open on. */
 @keyframes logo-breathe{0%,100%{transform:translateY(var(--dy)) scale(var(--s0))}50%{transform:translateY(var(--dy)) scale(calc(var(--s0)*1.035))}}
-/* r14 */
+
+/* ---------- Nav pill: liquid glass (Apple style) ---------- */
+/* A clear, strongly blurred and saturated pane that picks up whatever is behind it, a bright specular sheen along the top,
+   a light rim that is brightest at the corners, and a soft inner depth. The mark keeps its real logo colours on it. */
+.nav{
+  background:linear-gradient(180deg,rgba(255,255,255,.66),rgba(255,255,255,.42));
+  -webkit-backdrop-filter:blur(22px) saturate(190%) contrast(1.04);backdrop-filter:blur(22px) saturate(190%) contrast(1.04);
+  border:0;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.95),inset 0 -1px 2px rgba(17,52,98,.12),inset 0 0 22px rgba(255,255,255,.32),
+    0 14px 34px rgba(17,52,98,.22),0 2px 8px rgba(17,52,98,.12);
+}
+.nav::before,.nav::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none}
+.nav::before{background:radial-gradient(90% 130% at 18% -20%,rgba(255,255,255,.85),rgba(255,255,255,0) 58%),linear-gradient(115deg,rgba(255,255,255,0) 38%,rgba(255,255,255,.28) 50%,rgba(255,255,255,0) 62%)}
+.nav::after{padding:1.5px;background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(255,255,255,.12) 32%,rgba(255,255,255,.08) 68%,rgba(255,255,255,.9));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.nav>*{position:relative;z-index:1}
+.nav ul a{color:rgba(17,52,98,.88);text-shadow:0 1px 0 rgba(255,255,255,.45)}
+.nav ul a:hover{color:var(--navy)}
+.nav .btn.sm{box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 6px 16px rgba(231,114,73,.38)}
+.zooming .ext:not(:last-child){display:none}
+
+/* ---------- Contact: brand icon tiles + moving logo strip ---------- */
+.ct-tile{flex:none;display:grid;place-items:center;width:clamp(46px,5.4vw,66px);aspect-ratio:1;border-radius:26%;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.6),inset 0 -2px 4px rgba(0,0,0,.18),0 10px 22px rgba(0,0,0,.3);transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+.ct-row:hover .ct-tile{transform:rotate(-6deg) scale(1.06)}
+.ct-glyph{width:56%;height:56%;overflow:visible}
+.ct-glyph *{fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ct-glyph .orange{stroke:#fff}
+.ct-email{background:linear-gradient(150deg,#F5906B,#E77249 55%,#C75A33)}
+.ct-whatsapp{background:linear-gradient(150deg,#47E889,#25D366 55%,#12957F)}
+.ct-instagram{background:radial-gradient(circle at 28% 108%,#FED373 0%,#F15245 42%,#D92E7F 62%,#9B36B7 80%,#515ED4 100%)}
+.ct-row:hover .ct-email{box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 0 0 2px rgba(255,255,255,.9),0 10px 22px rgba(0,0,0,.25)}
+.logo-run{position:absolute;left:0;right:0;bottom:0;height:68%;display:flex;align-items:center;overflow:hidden;pointer-events:none;z-index:0;opacity:.085;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.contact>.in{position:relative;z-index:1}
+.lr-set{display:flex;align-items:center;gap:clamp(60px,9vw,150px);padding-right:clamp(60px,9vw,150px)}
+.lr-logo{display:block;flex:none;height:clamp(260px,46vw,660px);aspect-ratio:1215/973;background:var(--logo) center/contain no-repeat}
+.lr-star{flex:none;width:clamp(70px,9vw,150px);height:clamp(70px,9vw,150px);color:var(--orange);animation:spin 22s linear infinite}
+
+/* r32 */

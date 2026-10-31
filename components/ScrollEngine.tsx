@@ -2,16 +2,15 @@
 
 import { useEffect } from "react";
 import { SERVICES } from "@/lib/data";
-import { LOGO_W, STAR } from "@/lib/wedge";
+import { FOCUS, LOGO_W } from "@/lib/wedge";
 
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const eio = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-type Marquee = { track: HTMLElement; dir: number; speed: number; x: number | undefined; L: number; drag?: { id: number; sx: number; mx: number; lx: number; lt: number }; glide: number };
+type Marquee = { track: HTMLElement; dir: number; speed: number; x: number | undefined; L: number; drag?: { id: number; sx: number; mx: number; lx: number; lt: number }; glide: number; steady: boolean };
 
 /**
- * Drives every scroll-linked effect from a single rAF loop: the intro logo breaking apart and flooding orange,
+ * Drives every scroll-linked effect from a single rAF loop: the intro logo diving into its orange W and becoming the orange next page,
  * the pinned horizontal services reel, stacking work cards, velocity-reactive marquees, the progress rail and
  * reveal-on-view. It writes styles straight to elements, so the components it touches must not set those styles.
  */
@@ -25,20 +24,24 @@ export default function ScrollEngine() {
 
     let vw = innerWidth, vh = innerHeight, lastY = scrollY, vel = 0, svMax = 0, activeCard = -1, raf = 0;
 
-    const intro = $("#intro"), stage = $("#stage"), logoWrap = $("#logoWrap"), apex = $("#apex"), flood = $("#flood");
-    const wedge = document.getElementById("logoWedge") as unknown as SVGSVGElement, wedgePath = document.getElementById("wedgePath")!, starPath = document.getElementById("starPath")!;
+    const intro = $("#intro"), stage = $("#stage"), logoWrap = $("#logoWrap"), logoArea = $("#logoArea"), apex = $("#apex"), flood = $("#flood");
+    const starPath = document.getElementById("starPath") as unknown as SVGElement;
     const tagline = $("#tagline"), cue = $("#cue");
-    const slices = $$(".slice"), fws = $$(".fw"), mWords = $$("#manifesto .mw"), manifesto = $(".manifesto");
+    const fws = $$(".fw"), mWords = $$("#manifesto .mw"), manifesto = $(".manifesto");
     const sv = $("#services"), svStick = $("#svStick"), svRow = $("#svRow"), cards = $$(".card"), ghost = $("#ghost");
     const svBar = $("#svBar"), svCount = $("#svCount"), svName = $("#svName");
     const railFill = $("#railFill"), railWedge = $("#railWedge"), bigWedge = $("#bigWedge");
     const wks = $$(".wk");
-    const mqs: Marquee[] = $$("[data-mq]").map((track) => ({ track, dir: +(track.dataset.dir ?? -1) || -1, speed: +(track.dataset.speed ?? 0.6) || 0.6, x: undefined, L: 1, glide: 0 }));
+    const mqs: Marquee[] = $$("[data-mq]").map((track) => ({ track, dir: +(track.dataset.dir ?? -1) || -1, speed: +(track.dataset.speed ?? 0.6) || 0.6, x: undefined, L: 1, glide: 0, steady: track.hasAttribute("data-steady") }));
 
     const measure = () => {
       vw = innerWidth; vh = innerHeight;
       if (!RM) { svMax = Math.max(0, svRow.offsetWidth - vw); sv.style.height = svStick.offsetHeight + svMax + "px"; }
-      mqs.forEach((m) => { m.L = m.track.scrollWidth / 4; if (m.x === undefined) m.x = m.dir < 0 ? 0 : -m.L; });
+      mqs.forEach((m) => {
+        // The track holds four identical copies, so one loop is a quarter of its width. Use the exact (fractional) used width, not the
+        // rounded scrollWidth, so the wrap lands on precisely the same pixel and the loop has no seam. (Unaffected by a rotated parent.)
+        m.L = (parseFloat(getComputedStyle(m.track).width) || m.track.scrollWidth) / 4;
+        if (m.x === undefined) m.x = m.dir < 0 ? 0 : -m.L; });
     };
 
     /* Drag-to-scroll for the client logo rows (mouse, touch and pen). The row keeps drifting on its own; a drag
@@ -93,46 +96,35 @@ export default function ScrollEngine() {
         const ir = intro.getBoundingClientRect();
         if (ir.bottom > -50 && ir.top < vh) {
           const p = clamp(-ir.top / (ir.height - stage.offsetHeight));
-          const t1 = eio(clamp((p - 0.1) / 0.34));
-          const sc = 1 + 0.55 * t1;
-          logoWrap.style.transform = `scale(${sc})`;
           // The tagline and cue fade in with a CSS animation that holds its end state, so release it once scrolling starts.
           const anim = p > 0.005 ? "none" : "";
-          // The logo splits piece by piece, right to left. The orange W mark lifts away and the WACKO STUDIOS letters drop away,
-          // each letter starting a beat after the one before it and fanning out from the middle, so it reads as one orderly wave.
-          const lin = clamp((p - 0.1) / 0.34);
-          slices.forEach((s) => {
-            const top = s.dataset.row === "mark", i = +(s.dataset.i ?? 0), n = top ? 1 : 12, gap = top ? 0 : 0.05;
-            const local = eio(clamp(lin * (1 + (n - 1) * gap) - (n - 1 - i) * gap)); // right-most letter goes first
-            const spread = (((+(s.dataset.cx ?? 0) - LOGO_W / 2) / LOGO_W) * vw * 0.3) * local;
-            const rise = (top ? -1 : 1) * vh * 0.55 * local;
-            const tilt = (top ? -5 : i % 2 ? 1 : -1) * (top ? 1 : 12) * local;
-            s.style.transform = `translate(${spread}px,${rise}px) rotate(${tilt}deg)`;
-            s.style.opacity = String(1 - clamp((local - 0.5) / 0.5));
-          });
           const fade = String(1 - clamp(p / 0.08));
           tagline.style.opacity = fade; cue.style.opacity = fade;
           tagline.style.animation = cue.style.animation = anim;
 
-          /* Asterisk: zooms in towards the centre, swells into a full orange disc, then that disc becomes the flood. */
+          /* The camera dives into the middle of the orange W. The whole logo (mark, asterisk and wordmark) scales up about that
+             point while the point glides to the middle of the screen, until the W's solid orange fills the view. The zoom is
+             exponential, so it feels like one steady push in. The apex marks where that point sits before any zoom. */
+          const zt = eio(clamp((p - 0.05) / 0.45));
           const ap = apex.getBoundingClientRect();
-          const u = (logoWrap.offsetWidth / LOGO_W) * sc;          // screen px per logo unit
-          const zoom = eio(clamp((p - 0.12) / 0.18));
-          const open = eio(clamp((p - 0.26) / 0.14));
-          const rEnd = Math.min(vw, vh) * 0.2;                      // radius of the circle at hand-off
-          const k = lerp(STAR.r * u, rEnd, zoom) / (STAR.r * u);
-          wedge.style.transform = `translate(${((vw / 2 - ap.left) * zoom) / sc}px,${((vh / 2 - ap.top) * zoom) / sc}px) scale(${k})`;
-          wedgePath.setAttribute("r", String(STAR.r * open));
-          starPath.style.opacity = String(1 - clamp(open * 1.6));
+          const u = logoWrap.offsetWidth / LOGO_W;                               // screen px per logo unit
+          const sEnd = (Math.hypot(vw, vh) / 2 / (FOCUS.r * u)) * 1.04;          // scale at which the orange circle covers the screen
+          const sc = Math.exp(Math.log(sEnd) * zt);
+          logoWrap.style.transform = zt > 0 ? `translate(${(vw / 2 - ap.left) * zt}px,${(vh / 2 - ap.top) * zt}px) scale(${sc})` : "";
+          // Only the front face of the W is needed once it is moving (the depth layers would all be rendered at full zoom).
+          stage.classList.toggle("zooming", zt > 0.01);
+          // The blue asterisk spins with the scroll (two and a half turns by the time the zoom is half done).
+          starPath.style.transform = p > 0.003 ? `rotate(${(clamp(p / 0.5) * 900).toFixed(1)}deg)` : "";
           // The cursor tilt and depth shift (CSS) only apply while the logo sits still; they fade out as soon as it starts to move.
           stage.style.setProperty("--tf", (1 - clamp(p / 0.1)).toFixed(3));
 
-          const t2 = eio(clamp((p - 0.4) / 0.24));
-          const maxR = Math.hypot(vw / 2, vh / 2) + 80;
-          const rad = p < 0.4 ? 0 : lerp(rEnd, maxR, t2);
-          flood.style.clipPath = `circle(${rad}px at ${vw / 2}px ${vh / 2}px)`;
-          // The text block fades in as the circle opens, so it doesn't pop into view inside it.
-          manifesto.style.opacity = eio(clamp((p - 0.44) / 0.2)).toFixed(3);
+          // The flood is the same orange as the W, so it fades in unseen once the W fills the screen; the logo is then dropped.
+          const ft = eio(clamp((p - 0.4) / 0.12));
+          flood.style.opacity = String(ft);
+          flood.style.clipPath = ft > 0 ? "none" : "circle(0px at 50% 50%)";
+          logoArea.style.visibility = ft >= 1 ? "hidden" : "";
+          // The text block fades in over the orange, so it doesn't pop into view.
+          manifesto.style.opacity = eio(clamp((p - 0.5) / 0.16)).toFixed(3);
           const q = clamp((p - 0.62) / 0.3), n = mWords.length;
           mWords.forEach((w, i) => { w.style.opacity = (0.16 + 0.84 * clamp(q * (n + 3) - i)).toFixed(3); });
           fws.forEach((f) => { f.style.transform = `translate3d(0,${-p * (+(f.dataset.sp ?? 80) || 80) * 3}px,0)`; });
@@ -174,7 +166,7 @@ export default function ScrollEngine() {
         /* marquees */
         mqs.forEach((m) => {
           if (m.drag) { m.track.style.transform = `translate3d(${m.x}px,0,0)`; return; } // held: follow the pointer only
-          const step = m.speed + Math.min(Math.abs(vel), 70) * 0.14;
+          const step = m.steady ? m.speed : m.speed + Math.min(Math.abs(vel), 70) * 0.14; // steady tracks ignore scroll speed: one calm, constant drift
           m.x = (m.x ?? 0) + m.dir * step + m.glide;
           m.glide *= 0.94;
           if (Math.abs(m.glide) < 0.05) m.glide = 0;

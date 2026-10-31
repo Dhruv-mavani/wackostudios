@@ -1,5 +1,6 @@
-/** Geometry of the new logo (traced from public/wacko_studios_logo.png). The asterisk takes over the job the old wedge had:
- *  it is the point the intro zooms into and opens up from, so STAR is the "wedge" the scroll engine animates. */
+/** Geometry of the new logo (traced from public/wacko_studios_logo.png), in logo units.
+ *  FOCUS is the centre of the largest solid-orange area of the W (r = radius of that area). The intro zooms into this point
+ *  until it fills the screen, so the orange of the W becomes the orange of the next page. */
 export const LOGO_W = 1215;
 export const LOGO_H = 973;
-export const STAR = { x: 1105.33, y: 601.58, r: 89.17 };
+export const FOCUS = { x: 480.2, y: 347.5, r: 134.6 };

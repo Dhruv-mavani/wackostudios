@@ -15,11 +15,11 @@ export const SERVICES = [
 ];
 
 export const WORK = [
-  { client: "Client name", title: "Launch reel series", d: "A short-form video series and creator push built around a product launch.", c: ["Content Creation", "Influencer Marketing"], bg: "#E77249", fg: "#113462", panel: "#113462", art: "reel" },
+  { client: "Client name", title: "Launch reel series", d: "A short-form video series and creator push built around a product launch.", c: ["Content Creation", "Influencer Marketing"], bg: "#E77249", fg: "#0A2650", panel: "#113462", art: "reel" },
   { client: "Client name", title: "Identity refresh", d: "A new logo, colour system, voice and a social template kit.", c: ["Branding", "Graphic Design"], bg: "#FFFFFF", fg: "#113462", panel: "#E77249", art: "brand" },
   { client: "Client name", title: "Always-on growth", d: "Paid campaigns tied to a lead funnel, with weekly reporting.", c: ["Performance Marketing", "Lead Generation"], bg: "#234F8C", fg: "#FFFFFF", panel: "#FFFFFF", art: "perf" },
   { client: "Client name", title: "Brand website", d: "A fast marketing site with booking and lead capture built in.", c: ["Full Stack Development"], bg: "#F6F4F0", fg: "#113462", panel: "#113462", art: "web" },
-  { client: "Client name", title: "Festive ad set", d: "A set of cut-down ads and reels for a seasonal push.", c: ["Creative Ad Campaigns", "Video Editing"], bg: "#E77249", fg: "#113462", panel: "#113462", art: "video" },
+  { client: "Client name", title: "Festive ad set", d: "A set of cut-down ads and reels for a seasonal push.", c: ["Creative Ad Campaigns", "Video Editing"], bg: "#E77249", fg: "#0A2650", panel: "#113462", art: "video" },
 ];
 
 export const CLIENTS = [

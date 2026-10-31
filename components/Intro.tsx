@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { LOGO_H, LOGO_W, STAR } from "@/lib/wedge";
+import { LOGO_H, LOGO_W } from "@/lib/wedge";
 import { LOGO_PIECES, STAR_PATH } from "@/lib/logoPath";
 
 const FW = [
@@ -45,6 +45,7 @@ export default function Intro() {
         <div className="logo-area" id="logoArea">
           <div className="logo-tilt">
           <div className="logo-pulse">
+          <i className="apex" id="apex" />
           <div className="logo-wrap" id="logoWrap">
             {/* The orange W mark and one piece per letter, so the logo splits along its letters (see ScrollEngine) rather than through them. */}
             {LOGO_PIECES.map((pc) => (
@@ -76,12 +77,10 @@ export default function Intro() {
                 )}
               </div>
             ))}
-            {/* The asterisk is its own element so it can zoom in and swell into an orange disc on scroll. */}
+            {/* The asterisk is its own element so it can sit forward in 3D and spin on scroll (ScrollEngine). */}
             <div className="wedge-fly">
-              <i className="apex" id="apex" />
               <svg className="wedge" id="logoWedge" viewBox={`0 0 ${LOGO_W} ${LOGO_H}`} aria-hidden="true">
                 <path id="starPath" fill="#113462" fillRule="evenodd" d={STAR_PATH} />
-                <circle id="wedgePath" cx={STAR.x} cy={STAR.y} r="0" fill="#E77249" />
               </svg>
             </div>
           </div>
