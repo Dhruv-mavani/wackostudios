@@ -46,6 +46,7 @@ export const CLIENTS = [
   { name: "Villa 48", logo: "/clients/villa-48.webp", w: 456, h: 192 },
   { name: "Siddhi Vinayak", logo: "/clients/siddhi-vinayak.webp", w: 270, h: 220 },
   { name: "YCC (Yuva Champions Cricket)", logo: "/clients/ycc.webp", w: 549, h: 192 },
+  { name: "Kurozen Coffee", logo: "/clients/kurozen-coffee.webp", w: 640, h: 164 },
 ];
 export const TIMES = ["10:00 AM", "11:00 AM", "12:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"];
 
