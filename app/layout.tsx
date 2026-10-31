@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   formatDetection: { telephone: true, email: true },
 };
 
-export const viewport: Viewport = { viewportFit: "cover", themeColor: "#172033" };
+export const viewport: Viewport = { viewportFit: "cover", themeColor: "#113462" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

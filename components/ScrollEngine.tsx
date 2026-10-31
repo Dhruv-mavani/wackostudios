@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { SERVICES } from "@/lib/data";
-import { LOGO_W, WEDGE, sectorPath } from "@/lib/wedge";
+import { LOGO_W, STAR } from "@/lib/wedge";
 
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const eio = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -26,7 +26,7 @@ export default function ScrollEngine() {
     let vw = innerWidth, vh = innerHeight, lastY = scrollY, vel = 0, svMax = 0, activeCard = -1, raf = 0;
 
     const intro = $("#intro"), stage = $("#stage"), logoWrap = $("#logoWrap"), apex = $("#apex"), flood = $("#flood");
-    const wedge = document.getElementById("logoWedge") as unknown as SVGSVGElement, wedgePath = document.getElementById("wedgePath")!;
+    const wedge = document.getElementById("logoWedge") as unknown as SVGSVGElement, wedgePath = document.getElementById("wedgePath")!, starPath = document.getElementById("starPath")!;
     const tagline = $("#tagline"), cue = $("#cue");
     const slices = $$(".slice"), fws = $$(".fw"), mWords = $$("#manifesto .mw"), manifesto = $(".manifesto");
     const sv = $("#services"), svStick = $("#svStick"), svRow = $("#svRow"), cards = $$(".card"), ghost = $("#ghost");
@@ -98,15 +98,15 @@ export default function ScrollEngine() {
           logoWrap.style.transform = `scale(${sc})`;
           // The tagline and cue fade in with a CSS animation that holds its end state, so release it once scrolling starts.
           const anim = p > 0.005 ? "none" : "";
-          // The logo splits letter by letter, right to left. WACKO lifts away and STUDIOS drops away, each letter
-          // starting a beat after the one before it and fanning out from the middle, so it reads as one orderly wave.
+          // The logo splits piece by piece, right to left. The orange W mark lifts away and the WACKO STUDIOS letters drop away,
+          // each letter starting a beat after the one before it and fanning out from the middle, so it reads as one orderly wave.
           const lin = clamp((p - 0.1) / 0.34);
           slices.forEach((s) => {
-            const top = s.dataset.row === "top", i = +(s.dataset.i ?? 0), n = top ? 5 : 7, gap = top ? 0.14 : 0.09;
+            const top = s.dataset.row === "mark", i = +(s.dataset.i ?? 0), n = top ? 1 : 12, gap = top ? 0 : 0.05;
             const local = eio(clamp(lin * (1 + (n - 1) * gap) - (n - 1 - i) * gap)); // right-most letter goes first
             const spread = (((+(s.dataset.cx ?? 0) - LOGO_W / 2) / LOGO_W) * vw * 0.3) * local;
             const rise = (top ? -1 : 1) * vh * 0.55 * local;
-            const tilt = (i % 2 ? 1 : -1) * (top ? 8 : 12) * local;
+            const tilt = (top ? -5 : i % 2 ? 1 : -1) * (top ? 1 : 12) * local;
             s.style.transform = `translate(${spread}px,${rise}px) rotate(${tilt}deg)`;
             s.style.opacity = String(1 - clamp((local - 0.5) / 0.5));
           });
@@ -114,15 +114,16 @@ export default function ScrollEngine() {
           tagline.style.opacity = fade; cue.style.opacity = fade;
           tagline.style.animation = cue.style.animation = anim;
 
-          /* Wedge: zooms in towards the centre, opens up into a full circle, then that circle becomes the flood. */
+          /* Asterisk: zooms in towards the centre, swells into a full orange disc, then that disc becomes the flood. */
           const ap = apex.getBoundingClientRect();
           const u = (logoWrap.offsetWidth / LOGO_W) * sc;          // screen px per logo unit
           const zoom = eio(clamp((p - 0.12) / 0.18));
           const open = eio(clamp((p - 0.26) / 0.14));
           const rEnd = Math.min(vw, vh) * 0.2;                      // radius of the circle at hand-off
-          const k = lerp(WEDGE.r * u, rEnd, zoom) / (WEDGE.r * u);
+          const k = lerp(STAR.r * u, rEnd, zoom) / (STAR.r * u);
           wedge.style.transform = `translate(${((vw / 2 - ap.left) * zoom) / sc}px,${((vh / 2 - ap.top) * zoom) / sc}px) scale(${k})`;
-          wedgePath.setAttribute("d", sectorPath(lerp(WEDGE.half, 180, open)));
+          wedgePath.setAttribute("r", String(STAR.r * open));
+          starPath.style.opacity = String(1 - clamp(open * 1.6));
           // The cursor tilt and depth shift (CSS) only apply while the logo sits still; they fade out as soon as it starts to move.
           stage.style.setProperty("--tf", (1 - clamp(p / 0.1)).toFixed(3));
 

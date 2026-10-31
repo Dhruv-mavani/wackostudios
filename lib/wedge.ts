@@ -1,12 +1,5 @@
-/** The orange wedge in the logo is a circular sector. Measured from public/logo.png (1578 x 549 px). */
-export const LOGO_W = 1578;
-export const LOGO_H = 549;
-export const WEDGE = { x: 1414.67, y: 264.91, r: 144.53, angle: -0.37, half: 28.42 };
-
-/** Sector path with the tip at (x, y), opening towards `angle`, spanning +/- `half` degrees. 180 is a full disc. */
-export function sectorPath(half: number) {
-  const { x, y, r, angle } = WEDGE;
-  const h = Math.min(half, 179.9);
-  const pt = (deg: number) => `${(x + r * Math.cos((deg * Math.PI) / 180)).toFixed(2)} ${(y + r * Math.sin((deg * Math.PI) / 180)).toFixed(2)}`;
-  return `M${x} ${y}L${pt(angle - h)}A${r} ${r} 0 ${h > 90 ? 1 : 0} 1 ${pt(angle + h)}Z`;
-}
+/** Geometry of the new logo (traced from public/wacko_studios_logo.png). The asterisk takes over the job the old wedge had:
+ *  it is the point the intro zooms into and opens up from, so STAR is the "wedge" the scroll engine animates. */
+export const LOGO_W = 1215;
+export const LOGO_H = 973;
+export const STAR = { x: 1105.33, y: 601.58, r: 89.17 };

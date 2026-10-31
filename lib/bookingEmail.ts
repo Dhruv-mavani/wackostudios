@@ -4,7 +4,7 @@ import { SITE, SITE_URL } from "./seo";
 /**
  * Branded HTML emails for the "Schedule a meeting" form.
  * Email clients are stuck in 2005: everything is table layout with inline styles, web-safe font fallbacks, and
- * bulletproof buttons. Colours match the site (navy #172033, orange #E66A2C, grey #F4F4F4).
+ * bulletproof buttons. Colours match the site (navy #113462, orange #E77249, grey #F6F4F0).
  */
 export type Booking = {
   name: string;
@@ -21,7 +21,7 @@ export type Booking = {
   label: string;
 };
 
-const C = { navy: "#172033", navy2: "#1F2A42", orange: "#E66A2C", grey: "#F4F4F4", white: "#FFFFFF", ink2: "#5B6478" };
+const C = { navy: "#113462", navy2: "#1A4177", orange: "#E77249", grey: "#F6F4F0", white: "#FFFFFF", ink2: "#5B6478" };
 const FONT = "'Poppins','Segoe UI',Helvetica,Arial,sans-serif";
 const FONT_BODY = "'Montserrat','Segoe UI',Helvetica,Arial,sans-serif";
 
@@ -57,7 +57,7 @@ export function calendarUrl(b: Pick<Booking, "date" | "time" | "topic">, title: 
 
 const button = (href: string, label: string, kind: "primary" | "dark" | "ghost" = "primary") => {
   const style =
-    kind === "primary" ? `${solid(C.orange)}color:${C.navy};border:2px solid ${C.orange};`
+    kind === "primary" ? `${solid(C.orange)}color:#0A2650;border:2px solid ${C.orange};`
     : kind === "dark" ? `${solid(C.navy)}color:${C.white};border:2px solid ${C.navy};`
     : `background:${C.white};color:${C.navy};border:2px solid ${C.navy};`;
   return `<td style="padding:0 10px 10px 0"><a href="${esc(href)}" style="${style}display:inline-block;padding:13px 22px;border-radius:999px;font-family:${FONT};font-weight:700;font-size:14px;line-height:1;text-decoration:none">${esc(label)}</a></td>`;
@@ -71,7 +71,7 @@ const row = (label: string, valueHtml: string) => `
 
 const header = `
 <tr><td bgcolor="${C.navy}" style="${solid(C.navy)}padding:26px 32px 22px">
-  <a href="${SITE_URL}" style="text-decoration:none"><img src="${SITE_URL}/logo.png" width="150" alt="Wacko Studios" style="display:block;border:0;outline:none;width:150px;height:auto"></a>
+  <a href="${SITE_URL}" style="text-decoration:none"><img src="${SITE_URL}/logo.png" width="120" alt="Wacko Studios" style="display:block;border:0;outline:none;width:120px;height:auto"></a>
 </td></tr>
 <tr><td bgcolor="${C.orange}" style="${solid(C.orange)}height:6px;line-height:6px;font-size:0">&nbsp;</td></tr>`;
 
@@ -82,7 +82,7 @@ const footer = `
   <p style="margin:0;font-family:${FONT_BODY};font-size:13px;line-height:1.9;color:#B8BFCC">
     <a href="mailto:${EMAIL}" style="color:${C.white};text-decoration:none">${EMAIL}</a><br>
     <a href="tel:${SITE.phoneE164}" style="color:${C.white};text-decoration:none">${esc(PHONE)}</a> &nbsp;·&nbsp;
-    <a href="${esc(INSTAGRAM_URL)}" style="color:${C.orange};text-decoration:none">@wackostudios.in</a>
+    <a href="${esc(INSTAGRAM_URL)}" style="color:#FA9470;text-decoration:none">@wackostudios.in</a>
   </p>
 </td></tr>`;
 

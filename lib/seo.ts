@@ -56,7 +56,7 @@ export function jsonLd() {
     url: SITE_URL,
     description: SITE.description,
     slogan: SITE.tagline,
-    logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png`, width: 1578, height: 549 },
+    logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png`, width: 1200, height: 961 },
     image: `${SITE_URL}/opengraph-image.png`,
     email: SITE.email,
     telephone: SITE.phoneE164,

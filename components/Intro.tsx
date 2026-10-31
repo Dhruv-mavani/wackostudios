@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
-import { LOGO_H, LOGO_W, WEDGE, sectorPath } from "@/lib/wedge";
-import { LOGO_PIECES } from "@/lib/logoPath";
+import { LOGO_H, LOGO_W, STAR } from "@/lib/wedge";
+import { LOGO_PIECES, STAR_PATH } from "@/lib/logoPath";
 
 const FW = [
   { sp: 90, s: { left: "8%", top: "16%", width: 34 } },
@@ -14,6 +14,11 @@ const FLOOD_FW = [
   { sp: 80, s: { left: "6%", top: "70%", width: 90 } },
   { sp: 150, s: { left: "82%", top: "14%", width: 150 } },
 ];
+// The W mark is built from stacked copies of its own shape, each pushed a little further back in 3D, so it has real thickness
+// when the logo tilts. The shape is shared with every layer as one CSS mask (a data URI) instead of repeating the path.
+const DEPTH = 14;
+const MARK = LOGO_PIECES.find((p) => p.row === "mark")!;
+const MARK_MASK = `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${MARK.w} ${MARK.h}'><path d='${MARK.d}' fill-rule='evenodd'/></svg>`)}")`;
 const MANIFESTO = "Brands that blend in get scrolled past. We build the ones that don't.";
 
 function Flower({ sp, s, i }: { sp: number; s: CSSProperties; i: number }) {
@@ -41,7 +46,7 @@ export default function Intro() {
           <div className="logo-tilt">
           <div className="logo-pulse">
           <div className="logo-wrap" id="logoWrap">
-            {/* One piece per letter, so the logo splits along its letters (see ScrollEngine) rather than through them. */}
+            {/* The orange W mark and one piece per letter, so the logo splits along its letters (see ScrollEngine) rather than through them. */}
             {LOGO_PIECES.map((pc) => (
               <div
                 key={pc.id}
@@ -58,18 +63,27 @@ export default function Intro() {
                   transformOrigin: `${((pc.cx - pc.x) / pc.w) * 100}% ${((pc.cy - pc.y) / pc.h) * 100}%`,
                 }}
               >
-                <svg className="slice-fill" viewBox={`${pc.x} ${pc.y} ${pc.w} ${pc.h}`} preserveAspectRatio="none" aria-hidden="true">
-                  <path d={pc.d} fill="#fff" fillRule="evenodd" />
-                </svg>
+                {pc.row === "mark" ? (
+                  <div className="mark3d" style={{ "--mask": MARK_MASK } as CSSProperties}>
+                    {Array.from({ length: DEPTH }, (_, k) => <i key={k} className="ext" style={{ "--i": DEPTH - 1 - k } as CSSProperties} />)}
+                  </div>
+                ) : (
+                  <div className="rise" style={{ "--k": pc.i } as CSSProperties}>
+                    <svg className="slice-fill" viewBox={`0 0 ${pc.w} ${pc.h}`} preserveAspectRatio="none" aria-hidden="true">
+                      <path d={pc.d} fill="#113462" fillRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
               </div>
             ))}
-            {/* The wedge is its own element so it can zoom in and open up into a circle on scroll. */}
+            {/* The asterisk is its own element so it can zoom in and swell into an orange disc on scroll. */}
             <div className="wedge-fly">
+              <i className="apex" id="apex" />
               <svg className="wedge" id="logoWedge" viewBox={`0 0 ${LOGO_W} ${LOGO_H}`} aria-hidden="true">
-                <path id="wedgePath" fill="#E66A2C" d={sectorPath(WEDGE.half)} />
+                <path id="starPath" fill="#113462" fillRule="evenodd" d={STAR_PATH} />
+                <circle id="wedgePath" cx={STAR.x} cy={STAR.y} r="0" fill="#E77249" />
               </svg>
             </div>
-            <i className="apex" id="apex" />
           </div>
           </div>
           </div>
