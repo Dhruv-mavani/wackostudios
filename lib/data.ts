@@ -1,4 +1,7 @@
 /* ===== EDIT YOUR CONTENT HERE ===== */
+// "Work that made some noise" section. false = removed from the website (the section, the "Work" nav link and the mention in
+// llms.txt). Set to true to bring it back; the content itself (WORK below) stays in place.
+export const SHOW_WORK_SECTION = false;
 export const SHOW_SAMPLE_TAGS = true; // set to false once real project samples are added
 
 export const SERVICES = [

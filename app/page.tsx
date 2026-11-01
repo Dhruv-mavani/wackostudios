@@ -5,6 +5,7 @@ import Intro from "@/components/Intro";
 import Band from "@/components/Band";
 import Services from "@/components/Services";
 import Work from "@/components/Work";
+import { SHOW_WORK_SECTION } from "@/lib/data";
 import Clients from "@/components/Clients";
 import Reels from "@/components/Reels";
 import Testimonials from "@/components/Testimonials";
@@ -28,7 +29,7 @@ export default function Home() {
         <Band variant="navy" dir={-1} />
         <Services />
         <Band variant="orange" rev dir={1} style={{ marginTop: -30, marginBottom: -30 }} />
-        <Work />
+        {SHOW_WORK_SECTION && <Work />}
         <Clients />
         <Reels />
         <Testimonials />

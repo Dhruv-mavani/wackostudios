@@ -1,4 +1,4 @@
-import { SERVICES } from "@/lib/data";
+import { SERVICES, SHOW_WORK_SECTION } from "@/lib/data";
 import { SITE, SITE_URL } from "@/lib/seo";
 
 // llms.txt: a short, markdown summary for AI assistants. Full answers live in /llms-full.txt.
@@ -10,7 +10,7 @@ export function GET() {
 ${SITE.tagline} Based in India. Free 30 minute intro calls, times in IST.
 
 ## Pages
-- [Home](${SITE_URL}/): services, work, clients, booking and contact in one scrolling page
+- [Home](${SITE_URL}/): services, ${SHOW_WORK_SECTION ? "work, " : ""}clients, booking and contact in one scrolling page
 - [Services](${SITE_URL}/#services): ${SERVICES.map((s) => s.n).join(", ")}
 - [Book a call](${SITE_URL}/#book): pick a day and time for a free 30 minute call
 - [FAQ](${SITE_URL}/#faq): common questions, answered

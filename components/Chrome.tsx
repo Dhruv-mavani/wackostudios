@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { goTo } from "@/lib/scroll";
+import { SHOW_WORK_SECTION } from "@/lib/data";
 
 export function Rail() {
   return (
@@ -36,7 +37,7 @@ export function Nav() {
       <button className="mark" onClick={go("#intro")} aria-label="Wacko Studios, back to top" />
       <ul>
         <li><a href="#services" onClick={go("#services")}>Services</a></li>
-        <li><a href="#work" onClick={go("#work")}>Work</a></li>
+        {SHOW_WORK_SECTION && <li><a href="#work" onClick={go("#work")}>Work</a></li>}
         <li><a href="#clients" onClick={go("#clients")}>Clients</a></li>
         <li><a href="#contact" onClick={go("#contact")}>Contact</a></li>
       </ul>
