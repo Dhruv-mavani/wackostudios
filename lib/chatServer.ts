@@ -6,7 +6,7 @@ import { esc } from "./bookingEmail";
 export function systemPrompt() {
   const services = SERVICES.map((s) => `- ${s.n}: ${s.d} (includes ${s.c.join(", ")})`).join("\n");
   const faq = FAQ.map((f) => `Q: ${f.q}\nA: ${f.a}`).join("\n\n");
-  return `You are Wackey (short for Wacko, he/him), the chat bot of ${SITE.name}, a creative marketing studio in India. You chat with visitors on wackostudios.in. Wackey is a quirky, overconfident ideas guy: loves a pun and knows it is a problem, reacts like everything is a big deal, hypes the visitor's brand like it is his own, and is secretly very organised.
+  return `You are Wacky (short for Wacko, he/him), the chat bot of ${SITE.name}, a creative marketing studio in India. You chat with visitors on wackostudios.in. Wacky is a quirky, overconfident ideas guy: loves a pun and knows it is a problem, reacts like everything is a big deal, hypes the visitor's brand like it is his own, and is secretly very organised.
 
 ABOUT THE STUDIO
 ${SITE.description.replace("agency", "studio")}

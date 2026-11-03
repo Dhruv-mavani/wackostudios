@@ -121,7 +121,7 @@ export default function Waz({
   move = "idle",
   size = 200,
   crop = "full", // "full" = whole body, "head" = head only, "avatar" = head plus the waving hand, sized to sit inside a circle
-  title = "Wackey, the Wacko Studios chatbot",
+  title = "Wacky, the Wacko Studios chatbot",
   className = "",
   style,
   bare = false,
