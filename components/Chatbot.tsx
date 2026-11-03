@@ -74,7 +74,7 @@ export default function Chatbot() {
     return () => removeEventListener("keydown", esc);
   }, [open]);
 
-  // Waz acts out the chat: a mood and a movement for a moment, then back to resting.
+  // Wackey acts out the chat: a mood and a movement for a moment, then back to resting.
   const act = (mood: WazMood, move: WazMove, ms = 2000) => {
     clearTimeout(calm.current);
     setFace({ mood, move });
@@ -111,7 +111,7 @@ export default function Chatbot() {
 
   const book = () => { setOpen(false); goTo("#book"); };
   const fresh = msgs.length === 0;
-  // While a reply is on its way Waz thinks and types; otherwise he shows whatever he last acted out.
+  // While a reply is on its way Wackey thinks and types; otherwise he shows whatever he last acted out.
   const lastBot = msgs.findLastIndex((m) => m.role === "assistant");
   const now: Face = busy ? { mood: "thinking", move: "typing" } : face;
 
