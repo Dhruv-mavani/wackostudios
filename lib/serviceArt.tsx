@@ -91,6 +91,27 @@ export const SERVICE_ART: Record<string, ReactNode> = {
       </g>
     </>
   ),
+  // Workflow: a trigger node feeds an AI chip, a result fans out, and a spark blinks.
+  ai: (
+    <>
+      <g className="pl1"><circle cx="60" cy="62" r="42" style={f("ic")} /></g>
+      <g className="pl2">
+        <path d="M22 62 H44 M76 62 H98 M60 44 V26 M60 80 V98" style={s("ia", 5)} />
+        <circle cx="18" cy="62" r="8" style={fs("ib", "bg", 3)} />
+        <circle cx="102" cy="62" r="8" style={fs("ib", "bg", 3)} />
+        <circle cx="60" cy="20" r="8" style={fs("ia", "bg", 3)} />
+        <circle cx="60" cy="104" r="8" style={fs("ia", "bg", 3)} />
+        <g className="a-pop">
+          <rect x="40" y="42" width="40" height="40" rx="11" style={f("ia")} />
+          <rect x="47" y="49" width="26" height="26" rx="6" style={f("bg")} />
+          <path d="M60 52 L62.6 59.4 L70 62 L62.6 64.6 L60 72 L57.4 64.6 L50 62 L57.4 59.4 Z" style={f("ib")} />
+        </g>
+      </g>
+      <g className="pl1">
+        <path className="a-blink" d="M98 22 L100.4 28.6 L107 31 L100.4 33.4 L98 40 L95.6 33.4 L89 31 L95.6 28.6 Z" style={f("ib")} />
+      </g>
+    </>
+  ),
   // Browser window: code lines type out, the caret blinks, a </> badge floats.
   dev: (
     <>

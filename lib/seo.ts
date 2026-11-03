@@ -20,7 +20,7 @@ const serviceList = SERVICES.map((s) => s.n.toLowerCase());
 export const FAQ = [
   {
     q: "What is Wacko Studios?",
-    a: "Wacko Studios is a creative marketing agency in India. One team plans, shoots, designs, builds and runs content, campaigns, branding and code, so ideas ship fast and look like nobody else's.",
+    a: "Wacko Studios is a creative marketing studio in India. One team plans, shoots, designs, builds and runs content, campaigns, branding and code, so ideas ship fast and look like nobody else's.",
   },
   {
     q: "What services does Wacko Studios offer?",
@@ -43,8 +43,8 @@ export const FAQ = [
     a: "Yes. Performance Marketing runs paid campaigns on Meta and Google, tuned weekly against the numbers that matter. Lead Generation builds funnels, landing pages and campaigns that bring in people who want to talk.",
   },
   {
-    q: "How can I contact Wacko Studios?",
-    a: `Email ${EMAIL}, call or WhatsApp ${PHONE}, or message @wackostudios.in on Instagram (${INSTAGRAM_URL.replace("?hl=en", "")}).`,
+    q: "Does Wacko Studios do AI automation for businesses?",
+    a: "Yes. Business AI Automation covers chatbots, lead follow-ups and repeat tasks handled by AI, with workflows and AI agents set up so your business runs on autopilot and your team can focus on the creative work.",
   },
 ] as const;
 

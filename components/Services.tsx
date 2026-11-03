@@ -12,7 +12,7 @@ export default function Services() {
           <div className="sv-intro">
             <p className="eyebrow">What we do</p>
             <Split parts={["Everything a loud brand needs."]} />
-            <p className="lead">From the first idea to the last click, one team plans it, shoots it, designs it, builds it and runs it.</p>
+            <p className="lead">From the first idea to the last click, one team plans it, shoots it, designs it, automates it, builds it and runs it.</p>
             <span className="hint">
               Keep scrolling{" "}
               <svg viewBox="0 0 46 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 7h42M37 1l6 6-6 6" /></svg>
@@ -32,7 +32,7 @@ export default function Services() {
             <GoLink className="btn navy" to="#book">Book a 30 minute call</GoLink>
           </div>
         </div>
-        <div className="sv-hud"><span id="svCount">00 / 10</span><div className="bar"><i id="svBar" /></div><span className="nm" id="svName">Services</span></div>
+        <div className="sv-hud"><span id="svCount">00 / 11</span><div className="bar"><i id="svBar" /></div><span className="nm" id="svName">Services</span></div>
       </div>
     </section>
   );

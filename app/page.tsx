@@ -16,6 +16,8 @@ import JsonLd from "@/components/JsonLd";
 import AgentTools from "@/components/AgentTools";
 import IntroFx from "@/components/IntroFx";
 import CardFx from "@/components/CardFx";
+import Chatbot from "@/components/Chatbot";
+import { SHOW_CHATBOT } from "@/lib/chatbot";
 
 export default function Home() {
   return (
@@ -41,6 +43,7 @@ export default function Home() {
       <ScrollEngine />
       <IntroFx />
       <CardFx />
+      {SHOW_CHATBOT && <Chatbot />}
       <AgentTools />
       <JsonLd />
     </>

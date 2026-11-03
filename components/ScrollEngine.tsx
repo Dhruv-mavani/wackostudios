@@ -187,10 +187,13 @@ export default function ScrollEngine() {
     addEventListener("resize", measure);
     addEventListener("load", measure);
     document.fonts?.ready.then(measure);
+    // Re-measure whenever the reel's own size changes (a card added or removed, a font arriving late), not only on window resize.
+    const ro = new ResizeObserver(measure);
+    ro.observe(svRow);
     measure();
     raf = requestAnimationFrame(frame);
     return () => {
-      cancelAnimationFrame(raf); io.disconnect();
+      cancelAnimationFrame(raf); io.disconnect(); ro.disconnect();
       removeEventListener("resize", measure); removeEventListener("load", measure);
       dragOff.forEach((f) => f());
       root.classList.remove("rm");
