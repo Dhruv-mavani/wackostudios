@@ -23,21 +23,33 @@ import { isValidEmail, normalizeEmail } from "@/lib/validate";
  */
 const CHAT_MESSAGES_PER_WINDOW = 20;
 
+const SERVICE_BUTTONS = () => [...SERVICES.map((s) => s.n), "Not sure yet"];
+const DAY_BUTTONS = () => [...bookableDates(istNow()).slice(0, 6).map(dayLabel), "Another day"];
+
 /**
  * Pulls the tap-button line ("OPTIONS: a | b | c") off the end of a reply. The special words @services and @days are expanded here
- * from real data, so the buttons are always correct no matter what the model wrote.
+ * from real data, so the buttons are always correct no matter what the model wrote. Models sometimes forget the line, so when it is
+ * missing the buttons are worked out from what was said: a question about services, a "tap a service" nudge, a "which day" question,
+ * or a booking recap waiting for a yes.
  */
-function splitOptions(reply: string) {
+function splitOptions(reply: string, lastUser: string) {
   const m = /(?:^|\n)\s*OPTIONS:\s*([^\n]*?)\s*$/i.exec(reply);
-  if (!m) return { text: reply.replace(/\n?\s*OPTIONS:[\s\S]*$/i, "").trim(), options: [] as string[] };
+  const text = m ? reply.slice(0, m.index).trim() : reply.replace(/\n?\s*OPTIONS:[\s\S]*$/i, "").trim();
   const out: string[] = [];
-  for (const raw of m[1].split("|")) {
+  for (const raw of (m ? m[1].split("|") : [])) {
     const o = raw.trim().replace(/^["'*]+|["'*]+$/g, "");
-    if (/^@services$/i.test(o)) out.push(...SERVICES.map((s) => s.n), "Not sure yet");
-    else if (/^@days$/i.test(o)) out.push(...bookableDates(istNow()).slice(0, 6).map(dayLabel), "Another day");
+    if (/^@services$/i.test(o)) out.push(...SERVICE_BUTTONS());
+    else if (/^@days$/i.test(o)) out.push(...DAY_BUTTONS());
     else if (o && o.length <= 40) out.push(o);
   }
-  return { text: reply.slice(0, m.index).trim(), options: [...new Set(out)].slice(0, 14) };
+  if (!out.length) {
+    const said = text.toLowerCase();
+    if (/^topic:/im.test(text) && /^day:/im.test(text)) out.push("Yes, send it", "Change something");
+    else if (/(tap|pick|choose|select) (a |one |your )?(service|topic)|which service|what (service|topic)/.test(said)) out.push(...SERVICE_BUTTONS());
+    else if (/\b(which|what) (day|date)\b|day (works|suits)|date (works|suits)/.test(said)) out.push(...DAY_BUTTONS());
+    else if (/\bservices?\b/i.test(lastUser) && !/book/i.test(lastUser)) out.push(...SERVICE_BUTTONS());
+  }
+  return { text, options: [...new Set(out)].slice(0, 14) };
 }
 
 async function saveLead(input: Record<string, unknown>, transcript: string): Promise<{ ok: boolean; message: string }> {
@@ -132,7 +144,7 @@ export async function POST(req: Request) {
   for (const m of models) {
     try {
       const reply = await m.run(messages, system, runTool);
-      const { text, options } = splitOptions(reply);
+      const { text, options } = splitOptions(reply, messages[messages.length - 1].content);
       return Response.json({ ok: true, reply: text || reply, options, leadSaved, booked });
     } catch (e) {
       console.error(`Chat model ${m.label} failed, trying the next one`, e instanceof Error ? e.message : e);
