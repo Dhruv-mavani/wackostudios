@@ -1,20 +1,20 @@
 import type { ChatMessage } from "./chatbot";
-import { LEAD_TOOL } from "./chatServer";
+import { TOOLS } from "./chatServer";
 
 /**
  * The AI models behind the chat, tried in order until one answers. Each attempt is independent: if a model is rate
  * limited, down or slow, the next one gets the whole conversation from the start.
  *
- *   1. Gemini main model        GEMINI_API_KEY        free tier at https://aistudio.google.com/apikey
- *   2. Gemini fallback model    same key              a second model has its own free quota, so one busy model doesn't stop the chat
- *   3. Claude (optional)        ANTHROPIC_API_KEY     paid, only used if both Gemini models fail, so it costs next to nothing
+ *   1-3. Three Gemini models    GEMINI_API_KEY        free tier at https://aistudio.google.com/apikey. The free tier is often "overloaded"
+ *                                                     (503) per model, and each model has its own quota, so a busy one hands over to the next
+ *   4. Claude (optional)        ANTHROPIC_API_KEY     paid, only used if every Gemini model fails, so it costs next to nothing
  */
 export type RunTool = (name: string, input: Record<string, unknown>) => Promise<{ ok: boolean; message: string }>;
 export type Attempt = { label: string; run: (messages: ChatMessage[], system: string, runTool: RunTool) => Promise<string> };
 
-const MAX_STEPS = 3; // model calls per attempt: a reply, plus at most one tool round trip
+const MAX_STEPS = 4; // model calls per attempt: a reply, plus a couple of tool round trips
 // The first model gets a short leash so a slow answer hands over to the next model quickly; later ones get longer.
-const FIRST_TIMEOUT_MS = 7_000, LATER_TIMEOUT_MS = 12_000;
+const FIRST_TIMEOUT_MS = 8_000, LATER_TIMEOUT_MS = 12_000;
 
 /* ---------- Gemini (generateContent REST API) ---------- */
 
@@ -33,18 +33,22 @@ function gemini(model: string, key: string, timeoutMs: number): Attempt {
     async run(messages, system, runTool) {
       const convo: GTurn[] = messages.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] }));
       for (let step = 0; step < MAX_STEPS; step++) {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+        const init = {
           method: "POST",
           headers: { "x-goog-api-key": key, "content-type": "application/json" },
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: system }] },
             contents: convo,
-            tools: [{ functionDeclarations: [{ name: LEAD_TOOL.name, description: LEAD_TOOL.description, parameters: upperTypes(LEAD_TOOL.input_schema) }] }],
-            // Newer Gemini models spend some of this budget on thinking, so it is generous.
-            generationConfig: { maxOutputTokens: 1024, temperature: 0.8 },
+            tools: [{ functionDeclarations: TOOLS.map((x) => ({ name: x.name, description: x.description, parameters: upperTypes(x.input_schema) })) }],
+            // Newer Gemini models spend part of this budget on thinking, so it is generous, and thinking is kept minimal for speed.
+            generationConfig: { maxOutputTokens: 1024, temperature: 0.95, thinkingConfig: { thinkingLevel: "minimal" } },
           }),
           signal: AbortSignal.timeout(timeoutMs),
-        });
+        };
+        // "High demand" (503) on the free tier is usually over in a moment: one quick retry before giving up on this model.
+        let res = await fetch(url, init);
+        if (res.status === 503 || res.status === 429) { await new Promise((r) => setTimeout(r, 700)); res = await fetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) }); }
         if (!res.ok) throw new Error(`Gemini ${model} answered ${res.status}: ${(await res.text().catch(() => "")).slice(0, 300)}`);
         const data: { candidates?: { content?: { parts?: GPart[] } }[] } = await res.json();
         const parts = data.candidates?.[0]?.content?.parts ?? [];
@@ -79,7 +83,7 @@ function claude(model: string, key: string, timeoutMs: number): Attempt {
         const res = await fetch("https://api.anthropic.com/v1/messages", {
           method: "POST",
           headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-          body: JSON.stringify({ model, max_tokens: 400, system, tools: [LEAD_TOOL], messages: convo }),
+          body: JSON.stringify({ model, max_tokens: 500, system, tools: TOOLS, messages: convo }),
           signal: AbortSignal.timeout(timeoutMs),
         });
         if (!res.ok) throw new Error(`Claude ${model} answered ${res.status}: ${(await res.text().catch(() => "")).slice(0, 300)}`);
@@ -106,10 +110,12 @@ export function attempts(): Attempt[] {
   const list: Attempt[] = [];
   const g = process.env.GEMINI_API_KEY;
   if (g) {
-    const main = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
-    const spare = process.env.GEMINI_FALLBACK_MODEL || "gemini-3.6-flash";
-    list.push(gemini(main, g, FIRST_TIMEOUT_MS));
-    if (spare !== main) list.push(gemini(spare, g, LATER_TIMEOUT_MS));
+    const models = [
+      process.env.GEMINI_MODEL || "gemini-3.1-flash-lite",
+      process.env.GEMINI_FALLBACK_MODEL || "gemini-3.5-flash-lite",
+      process.env.GEMINI_THIRD_MODEL || "gemini-3.6-flash",
+    ];
+    [...new Set(models)].forEach((m, i) => list.push(gemini(m, g, i === 0 ? FIRST_TIMEOUT_MS : LATER_TIMEOUT_MS)));
   }
   const a = process.env.ANTHROPIC_API_KEY;
   if (a) list.push(claude(process.env.CHAT_MODEL || "claude-haiku-5-5", a, list.length ? LATER_TIMEOUT_MS : FIRST_TIMEOUT_MS));

@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { CHATBOT, CHAT_LIMITS, type ChatMessage } from "@/lib/chatbot";
+import { CHATBOT, CHAT_LIMITS, THINKING, type ChatMessage } from "@/lib/chatbot";
 import { WA } from "@/lib/data";
 import { goTo } from "@/lib/scroll";
 import Waz, { WazStyle, type WazMood, type WazMove } from "./Waz";
 
 type Face = { mood: WazMood; move: WazMove };
-type Msg = ChatMessage & { error?: boolean; lead?: boolean };
+type Msg = ChatMessage & { error?: boolean; lead?: boolean; booked?: boolean };
 
 const STORE = "wk-chat";
 const NUDGE = "wk-chat-nudged";
@@ -21,6 +21,22 @@ function Avatar({ mood = "happy", move = "none", className = "" }: { mood?: WazM
     <span className={`cb-av ${className}`} aria-hidden="true">
       <Waz bare crop="avatar" size={96} mood={mood} move={move} style={WAZ_COLORS} />
     </span>
+  );
+}
+
+/** The typing bubble: a different silly phrase every couple of seconds, drawn from a shuffled deck so none repeats until all have been seen. */
+function Thinking() {
+  const [deck] = useState(() => [...THINKING].sort(() => Math.random() - 0.5));
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setN((i) => i + 1), 2300);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <p className="cb-b cb-think" role="status" aria-label={`${CHATBOT.name} is typing`}>
+      <span className="cb-word" key={n} aria-hidden="true">{deck[n % deck.length]}</span>
+      <span className="cb-ell" aria-hidden="true"><i /><i /><i /></span>
+    </p>
   );
 }
 
@@ -92,12 +108,12 @@ export default function Chatbot() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // Error bubbles are local notices, not part of the conversation the model sees.
-        body: JSON.stringify({ messages: next.filter((m) => !m.error).map(({ role, content }) => ({ role, content })) }),
+        body: JSON.stringify({ messages: next.filter((m) => !m.error).map(({ role, content }) => ({ role, content })), done: { booked: next.some((m) => m.booked), lead: next.some((m) => m.lead) } }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok) {
-        setMsgs([...next, { role: "assistant", content: data.reply, lead: !!data.leadSaved }]);
-        if (data.leadSaved) act("wink", "bounce", 2600); else act("happy", "talk", 1800);
+        setMsgs([...next, { role: "assistant", content: data.reply, lead: !!data.leadSaved, booked: !!data.booked }]);
+        if (data.leadSaved || data.booked) act("wink", "bounce", 2600); else act("happy", "talk", 1800);
       } else {
         setMsgs([...next, { role: "assistant", content: res.status === 429 && data.error ? data.error : CHATBOT.offline, error: true }]);
         act("oops", "shake", 2600);
@@ -135,15 +151,15 @@ export default function Chatbot() {
             <div key={i} className={`cb-row ${m.role === "user" ? "me" : "bot"}`}>
               {m.role === "assistant" && (i === lastBot && !busy
                 ? <Avatar mood={now.mood} move={now.move} />
-                : <Avatar mood={m.error ? "oops" : m.lead ? "wink" : "happy"} />)}
+                : <Avatar mood={m.error ? "oops" : m.lead || m.booked ? "wink" : "happy"} />)}
               <div className="cb-col">
                 <p className={`cb-b${m.error ? " err" : ""}`}>{m.role === "assistant" ? linkify(m.content) : m.content}</p>
-                {m.lead && <span className="cb-sent">Sent to the team</span>}
+                {(m.lead || m.booked) && <span className="cb-sent">{m.booked ? "Booking request sent to the team" : "Sent to the team"}</span>}
                 {m.error && <a className="cb-wa" href={`https://wa.me/${WA}`} target="_blank" rel="noopener">Message us on WhatsApp</a>}
               </div>
             </div>
           ))}
-          {busy && <div className="cb-row bot"><Avatar mood="thinking" move="typing" /><p className="cb-b cb-dots" aria-label={`${CHATBOT.name} is typing`}><i /><i /><i /></p></div>}
+          {busy && <div className="cb-row bot"><Avatar mood="thinking" move="typing" /><Thinking /></div>}
         </div>
 
         {fresh && (

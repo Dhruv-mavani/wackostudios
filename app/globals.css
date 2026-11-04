@@ -645,10 +645,12 @@ html.is-loading:has(#intro) .cb{display:none}
 .cb-wa,.cb-sent{font-size:12.5px;font-weight:700}
 .cb-wa{color:var(--navy)}
 .cb-sent{color:#14673a;background:#e3f4ea;border-radius:999px;padding:3px 10px}
-.cb-dots{display:flex;gap:5px;padding:14px 16px}
-.cb-dots i{width:7px;height:7px;border-radius:50%;background:var(--navy);opacity:.35;animation:cb-dot 1s ease-in-out infinite}
-.cb-dots i:nth-child(2){animation-delay:.15s}
-.cb-dots i:nth-child(3){animation-delay:.3s}
+.cb-think{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--ink-dim);min-height:42px}
+.cb-word{animation:cb-word .45s ease both}
+.cb-ell{display:inline-flex;gap:4px;flex:none}
+.cb-ell i{width:5px;height:5px;border-radius:50%;background:var(--navy);opacity:.35;animation:cb-dot 1s ease-in-out infinite}
+.cb-ell i:nth-child(2){animation-delay:.15s}
+.cb-ell i:nth-child(3){animation-delay:.3s}
 .cb-starters{display:flex;flex-wrap:wrap;gap:8px;padding:4px 14px 10px}
 .cb-starters button{border:0;border-radius:999px;padding:8px 14px;background:#fff;color:var(--navy);font-size:13px;font-weight:600;box-shadow:inset 0 0 0 1.5px rgba(17,52,98,.2);transition:background .2s,box-shadow .2s}
 .cb-starters button:hover{background:var(--navy);color:#fff}
@@ -664,6 +666,7 @@ html.is-loading:has(#intro) .cb{display:none}
 .cb-foot button,.cb-foot a{border:0;background:none;padding:0;font-size:12px;font-weight:700;color:var(--navy);text-decoration:underline;text-underline-offset:3px}
 .cb-foot span{margin-left:auto}
 @keyframes cb-pop{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes cb-word{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 @keyframes cb-dot{0%,100%{transform:translateY(0);opacity:.35}50%{transform:translateY(-4px);opacity:1}}
 @media (max-width:520px){.cb-panel{height:min(620px,calc(100dvh - 100px))}.cb-fab{width:58px;height:58px}}
 @media (prefers-reduced-motion:reduce){.cb *,.cb-panel{animation:none!important;transition:none!important}}
@@ -679,4 +682,4 @@ html.is-loading:has(#intro) .cb{display:none}
 }
 
 
-/* r52 */
+/* r54 */

@@ -95,3 +95,14 @@ const MONTH = new Intl.DateTimeFormat("en-IN", { month: "long", year: "numeric",
 export const longDate = (iso: string) => LONG.format(utc(iso));
 export const shortDate = (iso: string) => SHORT.format(utc(iso));
 export const monthTitle = (year: number, month: number) => MONTH.format(new Date(Date.UTC(year, month, 1)));
+
+const DN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+/** "Fri 30 Oct, 2:00 PM IST", the wording used in the emails. */
+export const bookingLabel = (date: string, time: string) => { const d = utc(date); return `${DN[d.getUTCDay()]} ${d.getUTCDate()} ${MN[d.getUTCMonth()]}, ${time} IST`; };
+
+/** The time slots still open on a day (none if the day itself can't be booked). */
+export const openTimes = (date: string, now: IstNow) => TIMES.filter((t) => slotState(date, t, now));
+
+/** "11:30 AM", for telling the model what time it is in India. */
+export const clockText = (minutes: number) => `${(Math.floor(minutes / 60) % 12) || 12}:${String(minutes % 60).padStart(2, "0")} ${minutes >= 720 ? "PM" : "AM"}`;
