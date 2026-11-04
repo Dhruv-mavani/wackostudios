@@ -4,6 +4,7 @@ import { BOOK_TOOL, LEAD_TOOL, SLOTS_TOOL, renderLeadEmail, systemPrompt, type L
 import { attempts, type RunTool } from "@/lib/chatProviders";
 import { MAX_DAYS_AHEAD, bookableDates, bookingError, dayLabel, dayState, isIsoDate, istNow, openTimes } from "@/lib/booking";
 import { clean, submitBooking } from "@/lib/bookingServer";
+import { emailAttachments } from "@/lib/bookingEmail";
 import { BOOKING_LIMIT, BOOKING_LIMIT_MESSAGE, clientIp, overLimit } from "@/lib/rateLimit";
 import { isValidEmail, normalizeEmail } from "@/lib/validate";
 
@@ -75,7 +76,7 @@ async function saveLead(input: Record<string, unknown>, transcript: string): Pro
     body: JSON.stringify({
       from: process.env.BOOKING_FROM_EMAIL || "Wacko Studios <onboarding@resend.dev>",
       to: [process.env.BOOKING_TO_EMAIL || EMAIL],
-      subject: mail.subject, html: mail.html, text: mail.text,
+      subject: mail.subject, html: mail.html, text: mail.text, attachments: emailAttachments(),
       ...(lead.email ? { reply_to: lead.email } : {}),
     }),
   });

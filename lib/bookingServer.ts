@@ -1,5 +1,5 @@
 import { EMAIL, SERVICES } from "./data";
-import { renderOwnerEmail, renderVisitorEmail, type Booking } from "./bookingEmail";
+import { emailAttachments, renderOwnerEmail, renderVisitorEmail, type Booking } from "./bookingEmail";
 import { bookingError, bookingLabel, istNow } from "./booking";
 import { EMAIL_ERROR, isValidEmail, normalizeEmail } from "./validate";
 
@@ -54,14 +54,14 @@ export async function submitBooking(input: Record<string, unknown>, via = ""): P
   const to = process.env.BOOKING_TO_EMAIL || EMAIL;
   const from = process.env.BOOKING_FROM_EMAIL || "Wacko Studios <onboarding@resend.dev>";
   const owner = renderOwnerEmail(b);
-  const delivered = await send(key, { from, to: [to], subject: owner.subject, html: owner.html, text: owner.text, reply_to: b.email });
+  const delivered = await send(key, { from, to: [to], subject: owner.subject, html: owner.html, text: owner.text, reply_to: b.email, attachments: emailAttachments() });
   if (!delivered) return { ok: false, status: 502, reason: "send_failed" };
 
   // Optional confirmation to the visitor; never blocks or fails the request.
   const confirmFrom = process.env.BOOKING_CONFIRM_FROM;
   if (confirmFrom) {
     const v = renderVisitorEmail(b);
-    await send(key, { from: confirmFrom, to: [b.email], reply_to: EMAIL, subject: v.subject, html: v.html, text: v.text });
+    await send(key, { from: confirmFrom, to: [b.email], reply_to: EMAIL, subject: v.subject, html: v.html, text: v.text, attachments: emailAttachments() });
   }
   return { ok: true };
 }

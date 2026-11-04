@@ -1,5 +1,6 @@
 import { EMAIL, INSTAGRAM_URL, PHONE } from "./data";
 import { SITE, SITE_URL } from "./seo";
+import { LOGO_CID, LOGO_PNG_BASE64 } from "./emailLogo";
 
 /**
  * Branded HTML emails for the "Schedule a meeting" form.
@@ -69,11 +70,17 @@ const row = (label: string, valueHtml: string) => `
   <td style="padding:14px 0;border-top:1px solid #E3E5EA;font-family:${FONT_BODY};font-size:16px;font-weight:600;color:${C.navy};line-height:1.45;vertical-align:top">${valueHtml}</td>
 </tr>`;
 
-const header = `
+/** The logo travels inside the email (cid:), so it shows even when the mail app blocks remote pictures. If it is ever blocked anyway, the alt text still spells the name in white. */
+export const emailAttachments = () => [{ filename: "wacko-studios-logo.png", content: LOGO_PNG_BASE64, content_id: LOGO_CID, content_type: "image/png" }];
+/** For previews in a browser, where cid: images do not exist. */
+export const withInlineLogo = (html: string) => html.replace(`cid:${LOGO_CID}`, `data:image/png;base64,${LOGO_PNG_BASE64}`);
+
+export const emailHeader = `
 <tr><td bgcolor="${C.navy}" style="${solid(C.navy)}padding:26px 32px 22px">
-  <a href="${SITE_URL}" style="text-decoration:none"><img src="${SITE_URL}/logo.png" width="120" alt="Wacko Studios" style="display:block;border:0;outline:none;width:120px;height:auto"></a>
+  <a href="${SITE_URL}" style="text-decoration:none"><img src="cid:${LOGO_CID}" width="120" alt="Wacko Studios" style="display:block;border:0;outline:none;width:120px;height:auto;font-family:${FONT};font-weight:800;font-size:20px;color:${C.white}"></a>
 </td></tr>
 <tr><td bgcolor="${C.orange}" style="${solid(C.orange)}height:6px;line-height:6px;font-size:0">&nbsp;</td></tr>`;
+const header = emailHeader;
 
 const footer = `
 <tr><td bgcolor="${C.navy}" style="${solid(C.navy)}padding:28px 32px">

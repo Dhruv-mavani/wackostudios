@@ -1,6 +1,6 @@
 import { EMAIL, INSTAGRAM_URL, PHONE, SERVICES, TIMES } from "./data";
 import { FAQ, SITE } from "./seo";
-import { esc } from "./bookingEmail";
+import { emailHeader, esc } from "./bookingEmail";
 import { MAX_DAYS_AHEAD, MIN_LEAD_HOURS, addDays, clockText, dayLabel, dayState, longDate, type IstNow } from "./booking";
 
 /** What the chat has already done, so the model doesn't repeat itself (sent by the page, so it is a hint, not proof). */
@@ -152,11 +152,16 @@ export function renderLeadEmail(l: Lead, transcript: string) {
   const shown = rows.filter(([, v]) => v);
   const subject = `New chat lead: ${l.name}${l.brand ? ` (${l.brand})` : ""}`;
   const text = `${shown.map(([k, v]) => `${k}: ${v}`).join("\n")}\n\n--- Chat ---\n${transcript}`;
-  const html = `<div style="font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#113462;max-width:560px">
+  const html = `<!doctype html><html lang="en"><body style="margin:0;padding:0;background:#F6F4F0">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F6F4F0"><tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#FFFFFF;border-radius:18px;overflow:hidden">
+${emailHeader}
+<tr><td style="padding:28px 32px;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#113462">
 <h2 style="margin:0 0 12px">New lead from the website chat</h2>
 <table cellpadding="6" style="border-collapse:collapse;font-size:15px">${shown.map(([k, v]) => `<tr><td style="color:#5B6478;vertical-align:top">${esc(k)}</td><td><b>${esc(v)}</b></td></tr>`).join("")}</table>
 <h3 style="margin:22px 0 8px">Chat</h3>
 <pre style="white-space:pre-wrap;font:inherit;background:#F6F4F0;padding:12px;border-radius:8px">${esc(transcript)}</pre>
-<p style="color:#5B6478;font-size:13px">The visitor is an anonymous website guest; reply to the email or number above. Sent by the Wacko Studios chat assistant.</p></div>`;
+<p style="color:#5B6478;font-size:13px">The visitor is an anonymous website guest; reply to the email or number above. Sent by the Wacko Studios chat assistant.</p>
+</td></tr></table></td></tr></table></body></html>`;
   return { subject, text, html };
 }

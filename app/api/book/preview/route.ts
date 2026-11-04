@@ -1,4 +1,4 @@
-import { renderOwnerEmail, renderVisitorEmail, type Booking } from "@/lib/bookingEmail";
+import { renderOwnerEmail, renderVisitorEmail, withInlineLogo, type Booking } from "@/lib/bookingEmail";
 
 /** Development only: GET /api/book/preview?kind=owner|visitor shows the email design without sending. */
 export function GET(req: Request) {
@@ -15,5 +15,5 @@ export function GET(req: Request) {
     label: "Fri 30 Oct, 2:00 PM IST",
   };
   const mail = q.get("kind") === "visitor" ? renderVisitorEmail(sample) : renderOwnerEmail(sample);
-  return new Response(mail.html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
+  return new Response(withInlineLogo(mail.html), { headers: { "Content-Type": "text/html; charset=utf-8" } });
 }
