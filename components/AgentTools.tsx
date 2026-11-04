@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { SERVICES, TIMES } from "@/lib/data";
 import { FAQ, SITE } from "@/lib/seo";
+import { MAX_DAYS_AHEAD, MIN_LEAD_HOURS, bookableDates, bookingError, istNow } from "@/lib/booking";
 
 type Tool = { name: string; description: string; inputSchema: object; execute: (args: Record<string, string>) => Promise<unknown> };
 type ModelContext = { registerTool?: (t: Tool) => { unregister?: () => void } | void };
@@ -50,7 +51,7 @@ export default function AgentTools() {
         name: "list_available_slots",
         description: "Days and times (IST) that can be requested for a free 30 minute intro call.",
         inputSchema: { type: "object", properties: {} },
-        execute: async () => json({ timezone: "IST", dates: Array.from(document.querySelectorAll<HTMLElement>(".day")).map((b) => b.dataset.date), times: TIMES }),
+        execute: async () => json({ timezone: "IST", dates: bookableDates(istNow()), times: TIMES, rules: `Up to ${MAX_DAYS_AHEAD} days ahead, closed on Sundays, and a slot today needs at least ${MIN_LEAD_HOURS} hours notice.` }),
       },
       {
         name: "prepare_meeting_request",
@@ -69,10 +70,9 @@ export default function AgentTools() {
           required: ["date", "time", "name", "email"],
         },
         execute: async ({ date, time, name, brand, email, topic, notes }) => {
-          const dayBtn = document.querySelector<HTMLElement>(`.day[data-date="${date}"]`);
-          const slotBtn = Array.from(document.querySelectorAll<HTMLElement>(".slot")).find((b) => b.dataset.time === time);
-          if (!dayBtn || !slotBtn) return json({ ok: false, error: "That date or time is not available. Call list_available_slots for valid values." });
-          dayBtn.click(); slotBtn.click();
+          const problem = bookingError(date, time, istNow());
+          if (problem) return json({ ok: false, error: `${problem} Call list_available_slots for valid values.` });
+          window.dispatchEvent(new CustomEvent("ws:pick-slot", { detail: { date, time } }));
           fill("fName", name); fill("fBrand", brand); fill("fEmail", email); fill("fTopic", topic); fill("fNotes", notes);
           document.getElementById("book")?.scrollIntoView({ behavior: "smooth" });
           return json({ ok: true, note: "Form filled. Nothing has been sent. The user must press 'Request this slot' to send the request to the team." });

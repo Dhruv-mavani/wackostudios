@@ -1,5 +1,6 @@
 import { EMAIL, SERVICES, TIMES } from "@/lib/data";
 import { renderOwnerEmail, renderVisitorEmail, type Booking } from "@/lib/bookingEmail";
+import { bookingError, istNow, isIsoDate } from "@/lib/booking";
 import { EMAIL_ERROR, isValidEmail, normalizeEmail } from "@/lib/validate";
 
 /**
@@ -60,7 +61,10 @@ export async function POST(req: Request) {
   };
   if (!b.name) return Response.json({ ok: false, error: "Please add your name." }, { status: 400 });
   if (!isValidEmail(b.email)) return Response.json({ ok: false, error: EMAIL_ERROR }, { status: 400 });
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(b.date) || !TIMES.includes(b.time) || !b.label) return Response.json({ ok: false, error: "Please choose a day and a time first." }, { status: 400 });
+  if (!isIsoDate(b.date) || !TIMES.includes(b.time) || !b.label) return Response.json({ ok: false, error: "Please choose a day and a time first." }, { status: 400 });
+  // Same rules as the date picker: no past days, no closed days, nothing beyond the booking window, today needs notice.
+  const slotErr = bookingError(b.date, b.time, istNow());
+  if (slotErr) return Response.json({ ok: false, error: slotErr }, { status: 400 });
   if (!TOPICS.has(b.topic)) b.topic = "Not sure yet";
 
   const to = process.env.BOOKING_TO_EMAIL || EMAIL;

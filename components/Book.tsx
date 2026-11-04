@@ -1,51 +1,60 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { EMAIL, SERVICES, TIMES, WA } from "@/lib/data";
 import { copyText } from "@/lib/copy";
 import { EMAIL_ERROR, isValidEmail, normalizeEmail } from "@/lib/validate";
+import { bookingError, dayState, istNow, slotState } from "@/lib/booking";
+import DatePicker from "./DatePicker";
 import Split from "./Split";
 
 const DN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-// The next 12 bookable days (Sundays skipped). Built on the client only, so server and client markup match.
-const NO_DAYS: Date[] = [];
-let clientDays: Date[] | null = null;
-const getDays = () => {
-  if (!clientDays) {
-    clientDays = [];
-    const d = new Date();
-    d.setHours(12, 0, 0, 0);
-    while (clientDays.length < 12) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0) clientDays.push(new Date(d)); }
-  }
-  return clientDays;
-};
-const subscribe = () => () => {};
+// A minute-by-minute clock so today's slots close as they pass. 0 on the server and before hydration.
+const subscribe = (cb: () => void) => { const t = setInterval(cb, 20_000); return () => clearInterval(t); };
+const minute = () => Math.floor(Date.now() / 60_000);
 // Declarative WebMCP attributes (not yet in React's types) that let browser agents discover the form as a tool.
 const WEBMCP_FORM = { toolname: "request_meeting_slot", tooldescription: "Request a free 30 minute intro call with Wacko Studios. Choose a day and time, add name and email, then submit to send the request to the team." };
 // Web3Forms access keys are public by design (they only route submissions to your inbox). Set it in .env.local and in Vercel.
 const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
-const isoDate = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
 export default function Book() {
-  const days = useSyncExternalStore(subscribe, getDays, () => NO_DAYS);
-  const [day, setDay] = useState<number | null>(null);
-  const [time, setTime] = useState<number | null>(null);
+  const tick = useSyncExternalStore(subscribe, minute, () => 0);
+  const now = tick ? istNow(tick * 60_000) : null;
+  const [pickedDate, setDate] = useState<string | null>(null);
+  const [pickedTime, setTime] = useState<number | null>(null);
+  // What was chosen can stop being valid while the page is open (midnight passes, today's slots run out), so the choice is
+  // re-checked against the clock on every render and quietly dropped when it no longer works.
+  const date = pickedDate && now && dayState(pickedDate, now) === "ok" ? pickedDate : pickedDate && !now ? pickedDate : null;
+  const time = pickedTime !== null && (!date || !now || slotState(date, TIMES[pickedTime], now)) ? pickedTime : null;
+  const dropped = (pickedDate && !date) ? "That day is no longer available. Please choose another." : (pickedTime !== null && time === null) ? "That time has passed for today. Please choose another." : "";
   const [err, setErr] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [copyLabel, setCopyLabel] = useState("Copy details");
   const [form, setForm] = useState({ name: "", brand: "", email: "", topic: "Not sure yet", notes: "" });
 
-  const dTxt = (d: Date) => `${DN[d.getDay()]} ${d.getDate()} ${MN[d.getMonth()]}`;
-  const label = day !== null && time !== null ? `${dTxt(days[day])}, ${TIMES[time]} IST` : null;
+  const dTxt = (iso: string) => { const d = new Date(iso + "T00:00:00Z"); return `${DN[d.getUTCDay()]} ${d.getUTCDate()} ${MN[d.getUTCMonth()]}`; };
+  const label = date !== null && time !== null ? `${dTxt(date)}, ${TIMES[time]} IST` : null;
 
   const pick =
-    label ? <>Selected: <span>{label}</span> · 30 min</>
-    : day !== null ? <>Day: <span>{dTxt(days[day])}</span>. Now choose a time.</>
+    dropped ? <span className="warn">{dropped}</span>
+    : label ? <>Selected: <span>{label}</span> · 30 min</>
+    : date !== null ? <>Day: <span>{dTxt(date)}</span>. Now choose a time.</>
     : time !== null ? <>Time: <span>{TIMES[time]} IST</span>. Now choose a day.</>
     : "Nothing selected yet.";
+
+  // The page's agent tools (and nothing else) can pick a slot on the visitor's behalf through this event.
+  useEffect(() => {
+    const onPick = (e: Event) => {
+      const { date: d, time: t } = (e as CustomEvent<{ date: string; time: string }>).detail;
+      if (bookingError(d, t, istNow())) return;
+      setDate(d); setTime(TIMES.indexOf(t)); setErr("");
+    };
+    window.addEventListener("ws:pick-slot", onPick);
+    return () => window.removeEventListener("ws:pick-slot", onPick);
+  }, []);
 
   const message = () =>
     `Hi Wacko Studios! I would like to book a 30 minute meeting.\nWhen: ${label}\nName: ${form.name.trim()}\n${form.brand.trim() ? `Brand: ${form.brand.trim()}\n` : ""}Email: ${normalizeEmail(form.email)}\nTopic: ${form.topic}` +
@@ -54,7 +63,9 @@ export default function Book() {
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (sending) return;
-    if (label === null) return setErr("Please choose a day and a time first.");
+    if (label === null || date === null || time === null) return setErr(dropped || "Please choose a day and a time first.");
+    const slotErr = bookingError(date, TIMES[time], istNow());
+    if (slotErr) return setErr(slotErr);
     if (!form.name.trim()) return setErr("Please add your name.");
     const email = normalizeEmail(form.email);
     if (!isValidEmail(email)) return setErr(EMAIL_ERROR);
@@ -72,7 +83,7 @@ export default function Book() {
         const res = await fetch("/api/book", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: form.name.trim(), brand: form.brand.trim(), email, topic: form.topic, notes: form.notes.trim(), date: isoDate(days[day!]), time: TIMES[time!], label }),
+          body: JSON.stringify({ name: form.name.trim(), brand: form.brand.trim(), email, topic: form.topic, notes: form.notes.trim(), date, time: TIMES[time], label }),
         });
         const data = await res.json().catch(() => ({}));
         if (res.ok && data.ok) delivered = true;
@@ -104,7 +115,7 @@ export default function Book() {
       if (delivered) {
         // Hand over to the confirmation page (a real URL, so ad platforms can count it as a conversion). Personal
         // details travel in sessionStorage, never in the URL.
-        try { sessionStorage.setItem("ws:booking", JSON.stringify({ name: form.name.trim(), label, topic: form.topic, date: isoDate(days[day!]), time: TIMES[time!] })); } catch { /* storage blocked: the page still works without it */ }
+        try { sessionStorage.setItem("ws:booking", JSON.stringify({ name: form.name.trim(), label, topic: form.topic, date, time: TIMES[time] })); } catch { /* storage blocked: the page still works without it */ }
         // A full page load on purpose: ad tags count conversions most reliably on a real page view.
         // eslint-disable-next-line @next/next/no-location-assign-relative-destination
         window.location.assign("/thank-you");
@@ -140,17 +151,11 @@ export default function Book() {
             <div>
               <h3>Pick a day and time</h3>
               <div className="step">1 · Choose a day</div>
-              <div className="days" role="group" aria-label="Choose a day">
-                {days.map((d, i) => (
-                  <button key={i} type="button" className="day" data-date={isoDate(d)} aria-pressed={i === day} onClick={() => { setDay(i); clearErr(); }}>
-                    {DN[d.getDay()]}<b>{d.getDate()}</b>{MN[d.getMonth()]}
-                  </button>
-                ))}
-              </div>
+              <DatePicker id="fDate" value={date} now={now} onChange={(d) => { setDate(d); setErr(""); }} />
               <div className="step">2 · Choose a time (IST)</div>
               <div className="slots" role="group" aria-label="Choose a time">
                 {TIMES.map((t, i) => (
-                  <button key={t} type="button" className="slot" data-time={t} aria-pressed={i === time} onClick={() => { setTime(i); clearErr(); }}>{t}</button>
+                  <button key={t} type="button" className="slot" data-time={t} aria-pressed={i === time} disabled={!!(date && now && !slotState(date, t, now))} onClick={() => { setTime(i); clearErr(); }}>{t}</button>
                 ))}
               </div>
               <p className="pick" aria-live="polite">{pick}</p>
