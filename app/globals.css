@@ -49,8 +49,11 @@ h2 em{font-style:normal;color:var(--orange)}
 .lead{font-size:clamp(16px,1.5vw,19px);color:var(--dim);max-width:52ch;margin:24px 0 0}
 
 /* split words */
-.w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em;margin-bottom:-.12em}
-.w>span{display:inline-block;transform:translateY(108%);transition:transform .95s cubic-bezier(.2,.8,.2,1) calc(var(--i,0)*55ms)}
+/* Each word sits in a mask for the slide-up reveal. The mask is padded on all four sides (and pulled back with negative margins, so the
+   layout is unchanged) so tight line-height and negative letter-spacing never shave the top of tall letters, the tail of g, p and y,
+   or the edge of the first and last letter. The words start further down so none of the padding shows them early. */
+.w{display:inline-block;overflow:hidden;vertical-align:top;padding:.18em .14em .28em;margin:-.18em -.14em -.28em}
+.w>span{display:inline-block;transform:translateY(150%);transition:transform .95s cubic-bezier(.2,.8,.2,1) calc(var(--i,0)*55ms)}
 .in-view .w>span,.w-on .w>span{transform:none}
 .js .rv{opacity:0;transform:translateY(34px);transition:opacity .9s ease,transform .9s cubic-bezier(.2,.8,.2,1);transition-delay:var(--d,0s)}
 .js .rv.in-view{opacity:1;transform:none}
@@ -133,7 +136,7 @@ html.has-cur .stage>.fw svg{animation:none;will-change:transform}
 .hint{display:inline-flex;align-items:center;gap:12px;margin-top:30px;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase}
 .hint svg{width:46px;height:14px;animation:nudge 1.4s ease-in-out infinite}
 @keyframes nudge{50%{transform:translateX(10px)}}
-.card{flex:none;width:clamp(270px,76vw,390px);height:clamp(400px,64vh,540px);background:var(--navy);color:var(--white);border-radius:30px;padding:30px 28px 28px;display:flex;flex-direction:column;position:relative;overflow:hidden;transition:background .35s,color .35s,box-shadow .35s;box-shadow:0 24px 60px rgba(17,52,98,.22);will-change:transform;cursor:default}
+.card{flex:none;width:clamp(270px,76vw,390px);min-height:clamp(400px,64vh,540px);background:var(--navy);color:var(--white);border-radius:30px;padding:30px 28px 28px;display:flex;flex-direction:column;position:relative;overflow:hidden;transition:background .35s,color .35s,box-shadow .35s;box-shadow:0 24px 60px rgba(17,52,98,.22);will-change:transform;cursor:default}
 .card:nth-child(even){margin-top:clamp(28px,8vh,80px)}
 .card:nth-child(odd){margin-bottom:clamp(0px,4vh,40px)}
 .card .no{font-family:var(--f-display);font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--orange-lt);display:flex;justify-content:space-between;align-items:center;transition:color .35s}
@@ -149,7 +152,7 @@ html.has-cur .stage>.fw svg{animation:none;will-change:transform}
 .sv-outro{flex:none;width:clamp(290px,80vw,520px);padding-left:clamp(0px,3vw,40px)}
 .sv-outro h3{font-family:var(--f-display);font-weight:800;font-size:clamp(34px,5vw,64px);line-height:1;letter-spacing:-.035em;margin:0 0 26px}
 .sv-outro h3 em{font-style:normal;color:var(--orange)}
-.sv-hud{position:absolute;left:var(--gut-l);right:var(--gut-r);bottom:max(24px,env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:18px;font-family:var(--f-display);font-weight:700;font-size:13px;letter-spacing:.08em}
+.sv-hud{position:absolute;left:var(--gut-l);right:calc(var(--gut-r) + 74px);bottom:max(24px,env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:18px;font-family:var(--f-display);font-weight:700;font-size:13px;letter-spacing:.08em}
 .sv-hud .bar{flex:1;height:4px;border-radius:4px;background:rgba(17,52,98,.14);overflow:hidden}
 .sv-hud .bar i{display:block;height:100%;width:100%;background:var(--orange);transform-origin:left;transform:scaleX(0)}
 .sv-hud .nm{min-width:0;text-align:right;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
@@ -517,7 +520,16 @@ html.is-loading:has(#intro) .rail{opacity:0}
 .reel-frame.on .reel-play{opacity:0}
 .reel-frame.on:hover .reel-play,.reel-frame.on .reel-play:focus-visible{opacity:1}
 @media(prefers-reduced-motion:reduce){.reel-frame{transition:none}}
-/* r46 */
+/* Service cards grow if their words need more room (long titles, narrow phones) instead of cutting off the last line or the tags,
+   and everything tightens up on small or short screens so a card still fits in the pinned view. */
+@media (max-width:420px),(max-height:700px){
+  .card{padding:22px 22px 20px;border-radius:26px}
+  .card h3{font-size:clamp(22px,6.2vw,26px);margin:14px 0 8px}
+  .card p{font-size:13.5px;line-height:1.45}
+  .card .ico{width:clamp(72px,15vh,120px);height:clamp(72px,15vh,120px);margin:6px 0 auto}
+  .card .chips li{padding:5px 11px;font-size:12px}
+}
+
 
 /* Client logo rows can be dragged sideways; vertical swipes still scroll the page */
 .mq{touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
@@ -656,4 +668,15 @@ html.is-loading:has(#intro) .cb{display:none}
 @media (max-width:520px){.cb-panel{height:min(620px,calc(100dvh - 100px))}.cb-fab{width:58px;height:58px}}
 @media (prefers-reduced-motion:reduce){.cb *,.cb-panel{animation:none!important;transition:none!important}}
 
-/* r46 */
+/* Service cards grow if their words need more room (long titles, narrow phones) instead of cutting off the last line or the tags,
+   and everything tightens up on small or short screens so a card still fits in the pinned view. */
+@media (max-width:420px),(max-height:700px){
+  .card{padding:22px 22px 20px;border-radius:26px}
+  .card h3{font-size:clamp(22px,6.2vw,26px);margin:14px 0 8px}
+  .card p{font-size:13.5px;line-height:1.45}
+  .card .ico{width:clamp(72px,15vh,120px);height:clamp(72px,15vh,120px);margin:6px 0 auto}
+  .card .chips li{padding:5px 11px;font-size:12px}
+}
+
+
+/* r52 */
