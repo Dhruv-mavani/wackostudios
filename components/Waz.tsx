@@ -95,7 +95,8 @@ export const WAZ_CSS = `
 
 @keyframes waz-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 @keyframes waz-nod{0%,100%{transform:rotate(0)}50%{transform:rotate(2deg)}}
-@keyframes waz-blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+/* The blink closes the eyes with a clip, not a scale: a scaled layer can be drawn at a lower resolution while the page scrolls, which made the eyes blur mid-blink. */
+@keyframes waz-blink{0%,92%,100%{clip-path:inset(0 0 0 0)}95%{clip-path:inset(47% 0 47% 0)}}
 @keyframes waz-wave{from{transform:rotate(-14deg)}to{transform:rotate(16deg)}}
 @keyframes waz-talk{from{transform:scaleY(1)}to{transform:scaleY(.55)}}
 @keyframes waz-talkhead{0%,100%{transform:rotate(0)}50%{transform:rotate(-2.5deg)}}
