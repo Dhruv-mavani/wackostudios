@@ -101,6 +101,9 @@ const MN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"
 /** "Fri 30 Oct, 2:00 PM IST", the wording used in the emails. */
 export const bookingLabel = (date: string, time: string) => { const d = utc(date); return `${DN[d.getUTCDay()]} ${d.getUTCDate()} ${MN[d.getUTCMonth()]}, ${time} IST`; };
 
+/** "Thu 5 Nov", the short day wording used on chat buttons. */
+export const dayLabel = (date: string) => { const d = utc(date); return `${DN[d.getUTCDay()]} ${d.getUTCDate()} ${MN[d.getUTCMonth()]}`; };
+
 /** The time slots still open on a day (none if the day itself can't be booked). */
 export const openTimes = (date: string, now: IstNow) => TIMES.filter((t) => slotState(date, t, now));
 

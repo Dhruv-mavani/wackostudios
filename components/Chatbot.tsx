@@ -7,7 +7,7 @@ import { goTo } from "@/lib/scroll";
 import Waz, { WazStyle, type WazMood, type WazMove } from "./Waz";
 
 type Face = { mood: WazMood; move: WazMove };
-type Msg = ChatMessage & { error?: boolean; lead?: boolean; booked?: boolean };
+type Msg = ChatMessage & { error?: boolean; lead?: boolean; booked?: boolean; options?: string[] };
 
 const STORE = "wk-chat";
 const NUDGE = "wk-chat-nudged";
@@ -21,6 +21,26 @@ function Avatar({ mood = "happy", move = "none", className = "" }: { mood?: WazM
     <span className={`cb-av ${className}`} aria-hidden="true">
       <Waz bare crop="avatar" size={96} mood={mood} move={move} style={WAZ_COLORS} />
     </span>
+  );
+}
+
+const RECAP = /^(Topic|Day|Time|When|Name|Email|Brand|Notes):\s*(.+)$/;
+
+/** A reply's body. Lines like "Day: Thu 5 Nov, 10:00 AM IST" become a tidy summary card, so a booking recap is easy to scan. */
+function Body({ text }: { text: string }) {
+  const lines = text.split("\n");
+  const rows = lines.map((l) => RECAP.exec(l.trim()));
+  if (rows.filter(Boolean).length < 3) return <>{linkify(text)}</>;
+  const first = rows.findIndex(Boolean), last = rows.length - 1 - [...rows].reverse().findIndex(Boolean);
+  const before = lines.slice(0, first).join("\n").trim(), after = lines.slice(last + 1).join("\n").trim();
+  return (
+    <>
+      {before && <span className="cb-pre">{linkify(before)}</span>}
+      <dl className="cb-recap">
+        {rows.slice(first, last + 1).map((r, i) => r && <div key={i}><dt>{r[1]}</dt><dd>{linkify(r[2])}</dd></div>)}
+      </dl>
+      {after && <span className="cb-pre">{linkify(after)}</span>}
+    </>
   );
 }
 
@@ -112,7 +132,7 @@ export default function Chatbot() {
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok) {
-        setMsgs([...next, { role: "assistant", content: data.reply, lead: !!data.leadSaved, booked: !!data.booked }]);
+        setMsgs([...next, { role: "assistant", content: data.reply, lead: !!data.leadSaved, booked: !!data.booked, options: Array.isArray(data.options) ? data.options : [] }]);
         if (data.leadSaved || data.booked) act("wink", "bounce", 2600); else act("happy", "talk", 1800);
       } else {
         setMsgs([...next, { role: "assistant", content: res.status === 429 && data.error ? data.error : CHATBOT.offline, error: true }]);
@@ -153,12 +173,17 @@ export default function Chatbot() {
                 ? <Avatar mood={now.mood} move={now.move} />
                 : <Avatar mood={m.error ? "oops" : m.lead || m.booked ? "wink" : "happy"} />)}
               <div className="cb-col">
-                <p className={`cb-b${m.error ? " err" : ""}`}>{m.role === "assistant" ? linkify(m.content) : m.content}</p>
+                <div className={`cb-b${m.error ? " err" : ""}`}>{m.role === "assistant" ? <Body text={m.content} /> : m.content}</div>
                 {(m.lead || m.booked) && <span className="cb-sent">{m.booked ? "Booking request sent to the team" : "Sent to the team"}</span>}
                 {m.error && <a className="cb-wa" href={`https://wa.me/${WA}`} target="_blank" rel="noopener">Message us on WhatsApp</a>}
               </div>
             </div>
           ))}
+          {!busy && msgs.length > 0 && msgs[msgs.length - 1].options?.length ? (
+            <div className="cb-opts" role="group" aria-label="Quick replies">
+              {msgs[msgs.length - 1].options!.map((o) => <button type="button" key={o} onClick={() => { act("excited", "bounce", 1200); send(o); }}>{o}</button>)}
+            </div>
+          ) : null}
           {busy && <div className="cb-row bot"><Avatar mood="thinking" move="typing" /><Thinking /></div>}
         </div>
 

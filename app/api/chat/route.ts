@@ -1,8 +1,8 @@
-import { EMAIL } from "@/lib/data";
+import { EMAIL, SERVICES } from "@/lib/data";
 import { CHAT_LIMITS, SHOW_CHATBOT, type ChatMessage } from "@/lib/chatbot";
 import { BOOK_TOOL, LEAD_TOOL, SLOTS_TOOL, renderLeadEmail, systemPrompt, type Lead } from "@/lib/chatServer";
 import { attempts, type RunTool } from "@/lib/chatProviders";
-import { MAX_DAYS_AHEAD, bookingError, dayState, isIsoDate, istNow, openTimes } from "@/lib/booking";
+import { MAX_DAYS_AHEAD, bookableDates, bookingError, dayLabel, dayState, isIsoDate, istNow, openTimes } from "@/lib/booking";
 import { clean, submitBooking } from "@/lib/bookingServer";
 import { BOOKING_LIMIT, BOOKING_LIMIT_MESSAGE, clientIp, overLimit } from "@/lib/rateLimit";
 import { isValidEmail, normalizeEmail } from "@/lib/validate";
@@ -22,6 +22,23 @@ import { isValidEmail, normalizeEmail } from "@/lib/validate";
  * Limits per IP: 20 chat messages and, shared with the booking form, 5 booking requests, each per 10 minutes.
  */
 const CHAT_MESSAGES_PER_WINDOW = 20;
+
+/**
+ * Pulls the tap-button line ("OPTIONS: a | b | c") off the end of a reply. The special words @services and @days are expanded here
+ * from real data, so the buttons are always correct no matter what the model wrote.
+ */
+function splitOptions(reply: string) {
+  const m = /(?:^|\n)\s*OPTIONS:\s*([^\n]*?)\s*$/i.exec(reply);
+  if (!m) return { text: reply.replace(/\n?\s*OPTIONS:[\s\S]*$/i, "").trim(), options: [] as string[] };
+  const out: string[] = [];
+  for (const raw of m[1].split("|")) {
+    const o = raw.trim().replace(/^["'*]+|["'*]+$/g, "");
+    if (/^@services$/i.test(o)) out.push(...SERVICES.map((s) => s.n), "Not sure yet");
+    else if (/^@days$/i.test(o)) out.push(...bookableDates(istNow()).slice(0, 6).map(dayLabel), "Another day");
+    else if (o && o.length <= 40) out.push(o);
+  }
+  return { text: reply.slice(0, m.index).trim(), options: [...new Set(out)].slice(0, 14) };
+}
 
 async function saveLead(input: Record<string, unknown>, transcript: string): Promise<{ ok: boolean; message: string }> {
   const key = process.env.RESEND_API_KEY;
@@ -115,7 +132,8 @@ export async function POST(req: Request) {
   for (const m of models) {
     try {
       const reply = await m.run(messages, system, runTool);
-      return Response.json({ ok: true, reply, leadSaved, booked });
+      const { text, options } = splitOptions(reply);
+      return Response.json({ ok: true, reply: text || reply, options, leadSaved, booked });
     } catch (e) {
       console.error(`Chat model ${m.label} failed, trying the next one`, e instanceof Error ? e.message : e);
     }
