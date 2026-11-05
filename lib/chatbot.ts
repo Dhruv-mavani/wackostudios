@@ -60,7 +60,7 @@ export const ATTENTION: Attention[] = [
   { say: "Whoops, hope I'm not interrupting. Hi!", mood: "oops", move: "shake", pool: "any" },
   { say: "I speak English, Hinglish and Gujlish. Try me!", mood: "happy", move: "talk", pool: "any" },
   // by section
-  { say: "Welcome! Wacko Studios, but make it friendly.", mood: "happy", move: "wave", pool: "intro" },
+  { say: "Welcome to Wacko Studios! Look around, I'm right here.", mood: "happy", move: "wave", pool: "intro" },
   { say: "New here? I give the quick tour.", mood: "excited", move: "bounce", pool: "intro" },
   { say: "Eleven services. Tap me and I'll pick one for you.", mood: "excited", move: "bounce", pool: "services" },
   { say: "Not sure which service you need? Neither am I. Let's chat!", mood: "confused", move: "think", pool: "services" },
