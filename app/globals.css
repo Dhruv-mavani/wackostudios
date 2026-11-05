@@ -725,4 +725,35 @@ html.is-loading:has(#intro) .cb{display:none}
 }
 
 
-/* r64 */
+
+/* Diwali playground (components/Diwali.tsx): diyas replace the intro asterisks, plus a draggable sparkler and a sutli bomb */
+.dw{position:absolute;inset:0;z-index:8;pointer-events:none}
+.dw-i{position:absolute;width:var(--w);transform:translate(-50%,-50%)}
+.dw-i svg{display:block;width:100%;height:auto;overflow:visible}
+.dw-bomb{left:9%;top:47%;--w:104px}
+.dw-bomb.gone{visibility:hidden}
+.dw-pj{position:absolute;left:73%;top:33%;width:200px;pointer-events:auto;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.dw-pj.on{cursor:grabbing}
+.dw-pj::after{content:"";position:absolute;left:calc((1 - 104/160)*100%);top:calc(56/160*100%);width:34px;aspect-ratio:1;translate:-50% -50%;border-radius:50%;background:conic-gradient(#ffb627 calc(var(--p,0)*360deg),transparent 0);-webkit-mask:radial-gradient(circle,transparent 58%,#000 60%);mask:radial-gradient(circle,transparent 58%,#000 60%);opacity:min(1,calc(var(--p,0)*30));pointer-events:none}
+.dw-pj svg{display:block;width:100%;height:auto;overflow:visible;pointer-events:none;transform:scaleX(-1)}
+.dw-hint{position:absolute;left:0;top:98%;white-space:nowrap;font:600 12px/1 var(--f-body);color:var(--navy);background:rgba(255,255,255,.85);padding:7px 11px;border-radius:99px;box-shadow:0 4px 14px rgba(17,52,98,.18);animation:dw-hint 2s ease-in-out infinite}
+@keyframes dw-hint{50%{transform:translateY(-4px)}}
+.dw-fx{position:fixed;inset:0;width:100%;height:100%;z-index:60;pointer-events:none}
+.dw-flash{position:fixed;inset:-20%;z-index:61;pointer-events:none;background:radial-gradient(circle at 50% 50%,#fff7c8 0,#ffc531 18%,#ff7a1a 42%,#d92b0b 68%,rgba(120,10,0,.9) 100%);animation:dw-flash 1.5s ease-out forwards}
+@keyframes dw-flash{0%{opacity:0;transform:scale(.2)}12%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.25)}}
+.dw-meme{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(17,12,6,.82);animation:dw-in .35s ease both;cursor:pointer}
+@keyframes dw-in{from{opacity:0}}
+.dw-video{max-width:min(92vw,720px);max-height:82vh;border-radius:18px;box-shadow:0 24px 80px rgba(0,0,0,.6)}
+.dw-card{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;color:#fff;font-family:var(--f-display)}
+.dw-card-diyas{display:flex;align-items:flex-end;gap:6px}
+.dw-card b{font-size:clamp(40px,9vw,96px);font-weight:800;letter-spacing:-.03em;line-height:1;color:#ffc531;text-shadow:0 0 40px rgba(255,140,30,.7)}
+.dw-card span{font:600 clamp(14px,2vw,20px) var(--f-body);opacity:.85}
+html.is-loading:has(#intro) .dw{visibility:hidden}
+@media(max-width:760px){
+  .dw-i:not(.dw-bomb){width:calc(var(--w)*.7)}
+  .dw-bomb{left:40%;top:83%;--w:80px}
+  .dw-pj{left:48%;top:61%;width:150px}
+}
+@media(prefers-reduced-motion:reduce){.dw-hint{animation:none}.dw-flash{animation-duration:.01s}}
+
+/* r76 */

@@ -1,6 +1,8 @@
 import type { CSSProperties } from "react";
 import { LOGO_H, LOGO_W } from "@/lib/wedge";
 import { LOGO_PIECES, STAR_PATH } from "@/lib/logoPath";
+import { SHOW_DIWALI } from "@/lib/diwali";
+import Diwali from "./Diwali";
 
 const FW = [
   { sp: 90, s: { left: "8%", top: "16%", width: 34 } },
@@ -40,7 +42,8 @@ export default function Intro() {
           <i className="gl-blob b1" /><i className="gl-blob b2" /><i className="gl-blob b3" />
           <canvas className="dot-grid" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }} /></div>
         <div className="stage-glow" aria-hidden="true" />
-        {FW.map((f, i) => <Flower key={i} i={i} {...f} />)}
+        {/* Diwali mode swaps the floating orange asterisks for diyas and adds the sparkler and bomb (components/Diwali.tsx). */}
+        {SHOW_DIWALI ? <Diwali /> : FW.map((f, i) => <Flower key={i} i={i} {...f} />)}
 
         <div className="logo-area" id="logoArea">
           <div className="logo-tilt">
