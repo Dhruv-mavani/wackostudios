@@ -10,10 +10,10 @@ export const DIWALI = {
     { left: 91, top: 72, w: 70, phone: false },
     { left: 68, top: 88, w: 78, phone: false },
   ] as { left: number; top: number; w: number; phone: { left: number; top: number } | false }[]),
-  lightMs: 2600,      // how long the sparkler must be held at a wick before the diya catches
+  lightMs: 1300,      // how long the sparkler must be held in a diya flame before it catches
   fuseTouchMs: 900,   // how long it must touch the bomb's fuse
   fuseBurnMs: 2200,   // the fuse burns down over this long, then the bomb blasts
-  memeDelayMs: 1000,  // the clip starts this long after the blast
+  memeDelayMs: 150,   // the clip starts this long after the blast: the moment the screen has gone orange
   memeMs: 7000,       // how long the plain "Happy Diwali" card stays if the clip is missing
   memeMaxMs: 45000,   // safety net: the clip plays to its end, then everything resets; this only matters if it stalls
   video: "/diwali/jethalal.mp4", // drop the clip here; until it exists a plain "Happy Diwali" card is shown
