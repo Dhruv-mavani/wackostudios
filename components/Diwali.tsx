@@ -77,6 +77,7 @@ export default function Diwali() {
       try {
         if (!ac) { const AC = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext; if (AC) ac = new AC(); }
         ac?.resume().catch(() => {});
+        loadBang();
       } catch { /* no audio, fine */ }
       const v = vidRef.current;
       if (v && !unlocked) {
@@ -85,26 +86,16 @@ export default function Diwali() {
       }
     };
 
-    // A synthesised firecracker: a sharp crack, a low boom that rolls off, a chest thump and a few crackles after it.
+    // The bomb's bang is a real recording. It is fetched and decoded on the first touch so it can fire the instant the bomb goes off.
+    let bang: AudioBuffer | null = null;
+    const loadBang = () => {
+      if (!ac || bang) return;
+      fetch(DIWALI.blastSound).then((r) => r.arrayBuffer()).then((b) => ac!.decodeAudioData(b)).then((buf) => { bang = buf; }).catch(() => {});
+    };
     const blastSound = () => {
-      if (!ac || ac.state === "closed") return;
-      const t = ac.currentTime, sr = ac.sampleRate;
-      const noise = ac.createBuffer(1, sr * 2, sr), d = noise.getChannelData(0);
-      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-      const out = ac.createGain(); out.gain.value = 0.9; out.connect(ac.destination);
-      const voice = (type: BiquadFilterType, f0: number, f1: number, vol: number, dur: number, at = 0) => {
-        const src = ac!.createBufferSource(); src.buffer = noise;
-        const f = ac!.createBiquadFilter(); f.type = type; f.frequency.setValueAtTime(f0, t + at); f.frequency.exponentialRampToValueAtTime(f1, t + at + dur);
-        const g = ac!.createGain(); g.gain.setValueAtTime(vol, t + at); g.gain.exponentialRampToValueAtTime(0.001, t + at + dur);
-        src.connect(f); f.connect(g); g.connect(out); src.start(t + at, Math.random()); src.stop(t + at + dur + 0.05);
-      };
-      voice("highpass", 1500, 900, 1, 0.14);   // the crack
-      voice("lowpass", 1400, 110, 1.4, 1.5);   // the boom
-      const o = ac.createOscillator(), og = ac.createGain();
-      o.type = "sine"; o.frequency.setValueAtTime(130, t); o.frequency.exponentialRampToValueAtTime(32, t + 0.45);
-      og.gain.setValueAtTime(1.1, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
-      o.connect(og); og.connect(out); o.start(t); o.stop(t + 0.75);
-      for (let i = 0; i < 7; i++) voice("bandpass", 2500 + Math.random() * 2500, 1200, 0.25 + Math.random() * 0.25, 0.06, 0.2 + Math.random() * 1.1); // crackles
+      if (!ac || !bang || ac.state === "closed") return;
+      const src = ac.createBufferSource(), g = ac.createGain();
+      src.buffer = bang; g.gain.value = 1; src.connect(g); g.connect(ac.destination); src.start();
     };
 
     const resize = () => {
