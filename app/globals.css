@@ -749,11 +749,17 @@ html.is-loading:has(#intro) .cb{display:none}
 .dw-card b{font-size:clamp(40px,9vw,96px);font-weight:800;letter-spacing:-.03em;line-height:1;color:#ffc531;text-shadow:0 0 40px rgba(255,140,30,.7)}
 .dw-card span{font:600 clamp(14px,2vw,20px) var(--f-body);opacity:.85}
 html.is-loading:has(#intro) .dw{visibility:hidden}
+.dw-sound{position:absolute;bottom:max(24px,6vh);left:50%;translate:-50% 0;border:0;border-radius:99px;padding:12px 20px;background:#ffc531;color:#172033;font:700 15px/1 var(--f-body);cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+/* Phones: fewer diyas, and the sparkler and bomb sit in the free band between the tagline and the chat button so nothing crowds the logo and text. */
 @media(max-width:760px){
-  .dw-i:not(.dw-bomb){width:calc(var(--w)*.7)}
-  .dw-bomb{left:40%;top:83%;--w:80px}
-  .dw-pj{left:48%;top:61%;width:150px}
+  .dw-i.dw-wide{display:none}
+  .dw-i.dw-pos{left:var(--pl)!important;top:var(--pt)!important}
+  .dw-i:not(.dw-bomb){width:calc(var(--w)*.62)}
+  .dw-bomb{left:16%;top:73%;--w:70px}
+  .dw-pj{left:50%;top:70%;width:124px}
+  .stage:has(.dw) .cue{display:none} /* the scroll cue would sit under the sparkler */
+  .dw-hint{left:auto;right:0;font-size:11px;padding:6px 10px}
 }
 @media(prefers-reduced-motion:reduce){.dw-hint{animation:none}.dw-flash{animation-duration:.01s}}
 
-/* r76 */
+/* r83 */

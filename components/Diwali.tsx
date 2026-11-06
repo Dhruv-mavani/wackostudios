@@ -33,6 +33,7 @@ export default function Diwali() {
   const [blast, setBlast] = useState(0);
   const [meme, setMeme] = useState(false);
   const [noVideo, setNoVideo] = useState(false);
+  const [needSound, setNeedSound] = useState(false);
   const [step, setStep] = useState(0); // 0 sparkler unlit, 1 sparkler burning, 2 bomb lit
   const [drag, setDrag] = useState(false);
 
@@ -86,7 +87,7 @@ export default function Diwali() {
       fuseLine?.style.removeProperty("stroke-dashoffset"); fuseSpark?.style.removeProperty("transform");
       pos.x = 0; pos.y = 0; sparkler.style.transform = "";
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
-      setStep(0); setBomb("idle"); setMeme(false); setBlast(0);
+      setStep(0); setBomb("idle"); setMeme(false); setBlast(0); setNeedSound(false);
     };
     act.current = { reset };
 
@@ -185,6 +186,7 @@ export default function Diwali() {
         for (const el of diyaEls.current) {
           if (!el) continue;
           const b = el.getBoundingClientRect();
+          if (!b.width) continue; // hidden on this screen size
           fx = b.left + b.width * FLAME.x; fy = b.top + b.height * FLAME.y;
           if (Math.hypot(nx - fx, ny - fy) < Math.max(28, b.width * 0.3)) { near = true; break; }
         }
@@ -249,7 +251,7 @@ export default function Diwali() {
     <>
       <div className="dw" ref={root} aria-hidden="true">
         {DIWALI.diyas.map((d, i) => (
-          <div key={i} className="dw-i" ref={(el) => { diyaEls.current[i] = el; }} style={{ left: `${d.left}%`, top: `${d.top}%`, "--w": `${d.w}px` } as CSSProperties}>
+          <div key={i} className={`dw-i${d.phone ? " dw-pos" : " dw-wide"}`} ref={(el) => { diyaEls.current[i] = el; }} style={{ left: `${d.left}%`, top: `${d.top}%`, "--w": `${d.w}px`, "--pl": d.phone ? `${d.phone.left}%` : undefined, "--pt": d.phone ? `${d.phone.top}%` : undefined } as CSSProperties}>
             <Diya size={d.w} />
           </div>
         ))}
@@ -274,7 +276,22 @@ export default function Diwali() {
                   <span>from all of us at Wacko Studios</span>
                 </div>
               ) : (
-                <video className="dw-video" src={DIWALI.video} autoPlay muted playsInline loop onError={() => setNoVideo(true)} />
+                <>
+                  <video
+                    className="dw-video" src={DIWALI.video} autoPlay playsInline loop onError={() => setNoVideo(true)}
+                    ref={(v) => {
+                      // Play with Jethalal's voice. The visitor has been dragging and tapping, so browsers normally allow it; if one refuses, play muted and offer a button.
+                      if (!v || v.dataset.go) return;
+                      v.dataset.go = "1"; v.muted = false; v.volume = 1;
+                      v.play().catch(() => { v.muted = true; setNeedSound(true); v.play().catch(() => {}); });
+                    }}
+                  />
+                  {needSound && (
+                    <button type="button" className="dw-sound" onClick={(e) => { e.stopPropagation(); const v = (e.currentTarget.previousElementSibling as HTMLVideoElement | null); if (v) { v.muted = false; v.currentTime = 0; v.play().catch(() => {}); } setNeedSound(false); }}>
+                      Tap for sound
+                    </button>
+                  )}
+                </>
               )}
             </div>
           )}
