@@ -11,6 +11,9 @@ const FIRE = ["#fff1b8", "#ffc531", "#ff8a1f", "#ff4d14", "#d92b0b"];
 const pick = <T,>(a: readonly T[]) => a[(Math.random() * a.length) | 0];
 const noop = () => () => {};
 
+/** Transparent video works in Chromium and Firefox; Safari and every iPhone browser show it with a black box, so they get the boxed clip. */
+const canCutout = () => typeof navigator !== "undefined" && !/iPad|iPhone|iPod/.test(navigator.userAgent) && !/^((?!chrome|chromium|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent) && !!document.createElement("video").canPlayType('video/webm; codecs="vp9"');
+
 // Where things sit inside their own artwork (viewBox 120 or 160), as a fraction of the icon's size.
 const FLAME = { x: 97 / 120, y: 32 / 120 };
 const FUSE = { x: 86 / 120, y: 10 / 120 };
@@ -33,6 +36,7 @@ export default function Diwali() {
   const [blast, setBlast] = useState(0);
   const [meme, setMeme] = useState(false);
   const [noVideo, setNoVideo] = useState(false);
+  const [cutOk, setCutOk] = useState(true); // false once the transparent clip failed to load
   const [needSound, setNeedSound] = useState(false);
   const [step, setStep] = useState(0); // 0 sparkler unlit, 1 sparkler burning, 2 bomb lit
   const [drag, setDrag] = useState(false);
@@ -87,7 +91,7 @@ export default function Diwali() {
       fuseLine?.style.removeProperty("stroke-dashoffset"); fuseSpark?.style.removeProperty("transform");
       pos.x = 0; pos.y = 0; sparkler.style.transform = "";
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
-      setStep(0); setBomb("idle"); setMeme(false); setBlast(0); setNeedSound(false);
+      setStep(0); setBomb("idle"); setMeme(false); setBlast(0); setNeedSound(false); setCutOk(true);
     };
     act.current = { reset };
 
@@ -246,9 +250,10 @@ export default function Diwali() {
   }, [host]);
 
   const endMeme = () => act.current?.reset();
+  const cut = meme && cutOk && canCutout(); // show the big transparent Jethalal instead of the boxed clip
 
   // Warm the cache as soon as the sparkler is lit, so the clip can start the moment the blast is over.
-  useEffect(() => { if (step >= 1) fetch(DIWALI.video).catch(() => {}); }, [step]);
+  useEffect(() => { if (step >= 1) fetch(canCutout() ? DIWALI.cutout : DIWALI.video).catch(() => {}); }, [step]);
 
   return (
     <>
@@ -271,7 +276,7 @@ export default function Diwali() {
           <canvas className="dw-fx" ref={canvas} aria-hidden="true" />
           {blast > 0 && <div className="dw-flash" key={blast} aria-hidden="true" />}
           {meme && (
-            <div className="dw-meme" role="status" aria-label="Happy Diwali" onClick={endMeme}>
+            <div className={`dw-meme${cut ? " cut" : ""}`} role="status" aria-label="Happy Diwali" onClick={endMeme}>
               {noVideo ? (
                 <div className="dw-card">
                   <div className="dw-card-diyas"><Diya size={84} /><Diya size={110} /><Diya size={84} /></div>
@@ -281,7 +286,8 @@ export default function Diwali() {
               ) : (
                 <>
                   <video
-                    className="dw-video" src={DIWALI.video} autoPlay playsInline preload="auto" onEnded={endMeme} onError={() => { setNoVideo(true); clearTimeout(memeTimer.current); memeTimer.current = window.setTimeout(endMeme, DIWALI.memeMs); }}
+                    key={cut ? "cut" : "box"} className={`dw-video${cut ? " cut" : ""}`} src={cut ? DIWALI.cutout : DIWALI.video} autoPlay playsInline preload="auto" onEnded={endMeme}
+                    onError={() => { if (cut) { setCutOk(false); return; } setNoVideo(true); clearTimeout(memeTimer.current); memeTimer.current = window.setTimeout(endMeme, DIWALI.memeMs); }}
                     ref={(v) => {
                       // Play with Jethalal's voice. The visitor has been dragging and tapping, so browsers normally allow it; if one refuses, play muted and offer a button.
                       if (!v || v.dataset.go) return;

@@ -744,6 +744,8 @@ html.is-loading:has(#intro) .cb{display:none}
 .dw-meme{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(17,12,6,.82);animation:dw-in .35s ease both;cursor:pointer}
 @keyframes dw-in{from{opacity:0}}
 .dw-video{max-width:min(92vw,720px);max-height:82vh;border-radius:18px;box-shadow:0 24px 80px rgba(0,0,0,.6)}
+.dw-meme.cut{align-items:flex-end;background:radial-gradient(ellipse at 50% 72%,rgba(236,104,24,.96),rgba(58,16,4,.98) 78%)}
+.dw-video.cut{max-width:min(100vw,1180px);max-height:94vh;border-radius:0;box-shadow:none;filter:drop-shadow(0 16px 36px rgba(0,0,0,.55))}
 .dw-card{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;color:#fff;font-family:var(--f-display)}
 .dw-card-diyas{display:flex;align-items:flex-end;gap:6px}
 .dw-card b{font-size:clamp(40px,9vw,96px);font-weight:800;letter-spacing:-.03em;line-height:1;color:#ffc531;text-shadow:0 0 40px rgba(255,140,30,.7)}
@@ -762,4 +764,4 @@ html.is-loading:has(#intro) .dw{visibility:hidden}
 }
 @media(prefers-reduced-motion:reduce){.dw-hint{animation:none}.dw-flash{animation-duration:.01s}}
 
-/* r83 */
+/* r86 */

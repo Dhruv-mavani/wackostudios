@@ -16,5 +16,6 @@ export const DIWALI = {
   memeDelayMs: 150,   // the clip starts this long after the blast: the moment the screen has gone orange
   memeMs: 7000,       // how long the plain "Happy Diwali" card stays if the clip is missing
   memeMaxMs: 45000,   // safety net: the clip plays to its end, then everything resets; this only matters if it stalls
-  video: "/diwali/jethalal.mp4", // drop the clip here; until it exists a plain "Happy Diwali" card is shown
+  cutout: "/diwali/jethalal-cutout.webm", // Jethalal with the background removed (transparent WebM): shown big, no box. Chrome, Edge, Firefox, Android
+  video: "/diwali/jethalal.mp4",           // the boxed clip for browsers that cannot show transparent video (Safari, iPhone); if it is missing too, a plain "Happy Diwali" card is shown
 } as const;
