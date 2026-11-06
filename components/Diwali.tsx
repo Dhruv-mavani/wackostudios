@@ -48,6 +48,7 @@ export default function Diwali() {
   const diyaEls = useRef<(HTMLDivElement | null)[]>([]);
   const memeTimer = useRef(0);
   const act = useRef<{ reset: () => void } | null>(null);
+  const vidRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const cv = canvas.current, sparkler = pj.current, bombBox = bombEl.current, board = root.current;
@@ -69,6 +70,43 @@ export default function Diwali() {
     const trail: { x: number; y: number; t: number }[] = [];
     const timers: number[] = [];
 
+    // Phones only allow sound that starts from a touch. So the first touch on the sparkler quietly starts (and pauses) the clip and wakes
+    // the audio engine; when the blast comes the same video element and audio engine are already allowed to make noise.
+    let ac: AudioContext | null = null, unlocked = false;
+    const unlock = () => {
+      try {
+        if (!ac) { const AC = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext; if (AC) ac = new AC(); }
+        ac?.resume().catch(() => {});
+      } catch { /* no audio, fine */ }
+      const v = vidRef.current;
+      if (v && !unlocked) {
+        unlocked = true; v.muted = true;
+        v.play().then(() => { if (phase !== "meme") { v.pause(); v.currentTime = 0; } }).catch(() => { unlocked = false; });
+      }
+    };
+
+    // A synthesised firecracker: a sharp crack, a low boom that rolls off, a chest thump and a few crackles after it.
+    const blastSound = () => {
+      if (!ac || ac.state === "closed") return;
+      const t = ac.currentTime, sr = ac.sampleRate;
+      const noise = ac.createBuffer(1, sr * 2, sr), d = noise.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      const out = ac.createGain(); out.gain.value = 0.9; out.connect(ac.destination);
+      const voice = (type: BiquadFilterType, f0: number, f1: number, vol: number, dur: number, at = 0) => {
+        const src = ac!.createBufferSource(); src.buffer = noise;
+        const f = ac!.createBiquadFilter(); f.type = type; f.frequency.setValueAtTime(f0, t + at); f.frequency.exponentialRampToValueAtTime(f1, t + at + dur);
+        const g = ac!.createGain(); g.gain.setValueAtTime(vol, t + at); g.gain.exponentialRampToValueAtTime(0.001, t + at + dur);
+        src.connect(f); f.connect(g); g.connect(out); src.start(t + at, Math.random()); src.stop(t + at + dur + 0.05);
+      };
+      voice("highpass", 1500, 900, 1, 0.14);   // the crack
+      voice("lowpass", 1400, 110, 1.4, 1.5);   // the boom
+      const o = ac.createOscillator(), og = ac.createGain();
+      o.type = "sine"; o.frequency.setValueAtTime(130, t); o.frequency.exponentialRampToValueAtTime(32, t + 0.45);
+      og.gain.setValueAtTime(1.1, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+      o.connect(og); og.connect(out); o.start(t); o.stop(t + 0.75);
+      for (let i = 0; i < 7; i++) voice("bandpass", 2500 + Math.random() * 2500, 1200, 0.25 + Math.random() * 0.25, 0.06, 0.2 + Math.random() * 1.1); // crackles
+    };
+
     const resize = () => {
       dpr = Math.min(2, devicePixelRatio || 1);
       w = innerWidth; h = innerHeight;
@@ -87,6 +125,7 @@ export default function Diwali() {
       timers.forEach(clearTimeout); timers.length = 0;
       clearTimeout(memeTimer.current);
       phase = "play"; fuseDwell = 0; sparks.length = 0; trail.length = 0;
+      const v = vidRef.current; if (v) { v.pause(); v.currentTime = 0; v.muted = true; }
       ignite = 0; burning = false; sparkler.style.setProperty("--p", "0");
       fuseLine?.style.removeProperty("stroke-dashoffset"); fuseSpark?.style.removeProperty("transform");
       pos.x = 0; pos.y = 0; sparkler.style.transform = "";
@@ -99,11 +138,15 @@ export default function Diwali() {
       const r = bombBox.getBoundingClientRect();
       const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
       phase = "blast";
-      setBomb("gone"); setBlast((b) => b + 1);
+      setBomb("gone"); setBlast((b) => b + 1); blastSound();
       // A ball of fire from the bomb, then sparks raining over the whole screen.
       burst(cx, cy, reduced ? 0 : 520, 1500, FIRE, 1.5, 420);
       for (let i = 0; i < (reduced ? 0 : 8); i++) timers.push(window.setTimeout(() => burst(Math.random() * w, Math.random() * h * 0.8, 70, 520, FIRE, 1.1, 360), 160 + i * 120));
-      timers.push(window.setTimeout(() => { phase = "meme"; setMeme(true); memeTimer.current = window.setTimeout(reset, DIWALI.memeMaxMs); }, DIWALI.memeDelayMs));
+      timers.push(window.setTimeout(() => {
+        phase = "meme"; setMeme(true);
+        const v = vidRef.current;
+        if (v) { v.currentTime = 0; v.muted = false; v.volume = 1; v.play().catch(() => { v.muted = true; setNeedSound(true); v.play().catch(() => {}); }); }
+        memeTimer.current = window.setTimeout(reset, DIWALI.memeMaxMs); }, DIWALI.memeDelayMs));
     };
 
     const frame = (t: number) => {
@@ -226,6 +269,7 @@ export default function Diwali() {
     let grab: { x: number; y: number; bx: number; by: number } | null = null;
     const down = (e: PointerEvent) => {
       if (phase === "meme" || phase === "blast") return;
+      unlock();
       grab = { x: e.clientX, y: e.clientY, bx: pos.x, by: pos.y };
       sparkler.setPointerCapture(e.pointerId); setDrag(true);
     };
@@ -250,7 +294,8 @@ export default function Diwali() {
   }, [host]);
 
   const endMeme = () => act.current?.reset();
-  const cut = meme && cutOk && canCutout(); // show the big transparent Jethalal instead of the boxed clip
+  const useCut = cutOk && canCutout();
+  const cut = meme && useCut; // show the big transparent Jethalal instead of the boxed clip
 
   // Warm the cache as soon as the sparkler is lit, so the clip can start the moment the blast is over.
   useEffect(() => { if (step >= 1) fetch(canCutout() ? DIWALI.cutout : DIWALI.video).catch(() => {}); }, [step]);
@@ -275,35 +320,24 @@ export default function Diwali() {
         <>
           <canvas className="dw-fx" ref={canvas} aria-hidden="true" />
           {blast > 0 && <div className="dw-flash" key={blast} aria-hidden="true" />}
-          {meme && (
-            <div className={`dw-meme${cut ? " cut" : ""}`} role="status" aria-label="Happy Diwali" onClick={endMeme}>
-              {noVideo ? (
-                <div className="dw-card">
-                  <div className="dw-card-diyas"><Diya size={84} /><Diya size={110} /><Diya size={84} /></div>
-                  <b>Happy Diwali!</b>
-                  <span>from all of us at Wacko Studios</span>
-                </div>
-              ) : (
-                <>
-                  <video
-                    key={cut ? "cut" : "box"} className={`dw-video${cut ? " cut" : ""}`} src={cut ? DIWALI.cutout : DIWALI.video} autoPlay playsInline preload="auto" onEnded={endMeme}
-                    onError={() => { if (cut) { setCutOk(false); return; } setNoVideo(true); clearTimeout(memeTimer.current); memeTimer.current = window.setTimeout(endMeme, DIWALI.memeMs); }}
-                    ref={(v) => {
-                      // Play with Jethalal's voice. The visitor has been dragging and tapping, so browsers normally allow it; if one refuses, play muted and offer a button.
-                      if (!v || v.dataset.go) return;
-                      v.dataset.go = "1"; v.muted = false; v.volume = 1;
-                      v.play().catch(() => { v.muted = true; setNeedSound(true); v.play().catch(() => {}); });
-                    }}
-                  />
-                  {needSound && (
-                    <button type="button" className="dw-sound" onClick={(e) => { e.stopPropagation(); const v = (e.currentTarget.previousElementSibling as HTMLVideoElement | null); if (v) { v.muted = false; v.currentTime = 0; v.play().catch(() => {}); } setNeedSound(false); }}>
-                      Tap for sound
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
-          )}
+          <div className={`dw-meme${cut ? " cut" : ""}`} style={meme ? undefined : { display: "none" }} role="status" aria-label="Happy Diwali" onClick={endMeme}>
+            {noVideo && (
+              <div className="dw-card">
+                <div className="dw-card-diyas"><Diya size={84} /><Diya size={110} /><Diya size={84} /></div>
+                <b>Happy Diwali!</b>
+                <span>from all of us at Wacko Studios</span>
+              </div>
+            )}
+            <video
+              ref={vidRef} className={`dw-video${cut ? " cut" : ""}`} style={noVideo ? { display: "none" } : undefined} src={useCut ? DIWALI.cutout : DIWALI.video} playsInline preload={step >= 1 ? "auto" : "none"} onEnded={endMeme}
+              onError={() => { if (useCut) { setCutOk(false); return; } setNoVideo(true); clearTimeout(memeTimer.current); memeTimer.current = window.setTimeout(endMeme, DIWALI.memeMs); }}
+            />
+            {needSound && !noVideo && (
+              <button type="button" className="dw-sound" onClick={(e) => { e.stopPropagation(); const v = vidRef.current; if (v) { v.muted = false; v.currentTime = 0; v.play().catch(() => {}); } setNeedSound(false); }}>
+                Tap for sound
+              </button>
+            )}
+          </div>
         </>,
         host,
       )}
