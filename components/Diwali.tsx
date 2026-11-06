@@ -12,7 +12,7 @@ const pick = <T,>(a: readonly T[]) => a[(Math.random() * a.length) | 0];
 const noop = () => () => {};
 
 /** Transparent video works in Chromium and Firefox; Safari and every iPhone browser show it with a black box, so they get the boxed clip. */
-const canCutout = () => typeof navigator !== "undefined" && !/iPad|iPhone|iPod/.test(navigator.userAgent) && !/^((?!chrome|chromium|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent) && !!document.createElement("video").canPlayType('video/webm; codecs="vp9"');
+const canCutout = () => typeof document !== "undefined" && typeof navigator !== "undefined" && !/iPad|iPhone|iPod/.test(navigator.userAgent) && !/^((?!chrome|chromium|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent) && !!document.createElement("video").canPlayType('video/webm; codecs="vp9"');
 
 // Where things sit inside their own artwork (viewBox 120 or 160), as a fraction of the icon's size.
 const FLAME = { x: 97 / 120, y: 32 / 120 };
@@ -294,7 +294,7 @@ export default function Diwali() {
   }, [host]);
 
   const endMeme = () => act.current?.reset();
-  const useCut = cutOk && canCutout();
+  const useCut = !!host && cutOk && canCutout(); // browser only: the server has no document
   const cut = meme && useCut; // show the big transparent Jethalal instead of the boxed clip
 
   // Warm the cache as soon as the sparkler is lit, so the clip can start the moment the blast is over.
