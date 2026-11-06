@@ -99,7 +99,7 @@ export default function Diwali() {
       // A ball of fire from the bomb, then sparks raining over the whole screen.
       burst(cx, cy, reduced ? 0 : 520, 1500, FIRE, 1.5, 420);
       for (let i = 0; i < (reduced ? 0 : 8); i++) timers.push(window.setTimeout(() => burst(Math.random() * w, Math.random() * h * 0.8, 70, 520, FIRE, 1.1, 360), 160 + i * 120));
-      timers.push(window.setTimeout(() => { phase = "meme"; setMeme(true); memeTimer.current = window.setTimeout(reset, DIWALI.memeMs); }, 1100));
+      timers.push(window.setTimeout(() => { phase = "meme"; setMeme(true); memeTimer.current = window.setTimeout(reset, DIWALI.memeMaxMs); }, DIWALI.memeDelayMs));
     };
 
     const frame = (t: number) => {
@@ -247,6 +247,9 @@ export default function Diwali() {
 
   const endMeme = () => act.current?.reset();
 
+  // Warm the cache as soon as the sparkler is lit, so the clip can start the moment the blast is over.
+  useEffect(() => { if (step >= 1) fetch(DIWALI.video).catch(() => {}); }, [step]);
+
   return (
     <>
       <div className="dw" ref={root} aria-hidden="true">
@@ -278,7 +281,7 @@ export default function Diwali() {
               ) : (
                 <>
                   <video
-                    className="dw-video" src={DIWALI.video} autoPlay playsInline loop onError={() => setNoVideo(true)}
+                    className="dw-video" src={DIWALI.video} autoPlay playsInline preload="auto" onEnded={endMeme} onError={() => { setNoVideo(true); clearTimeout(memeTimer.current); memeTimer.current = window.setTimeout(endMeme, DIWALI.memeMs); }}
                     ref={(v) => {
                       // Play with Jethalal's voice. The visitor has been dragging and tapping, so browsers normally allow it; if one refuses, play muted and offer a button.
                       if (!v || v.dataset.go) return;

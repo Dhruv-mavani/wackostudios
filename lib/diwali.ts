@@ -13,6 +13,8 @@ export const DIWALI = {
   lightMs: 2600,      // how long the sparkler must be held at a wick before the diya catches
   fuseTouchMs: 900,   // how long it must touch the bomb's fuse
   fuseBurnMs: 2200,   // the fuse burns down over this long, then the bomb blasts
-  memeMs: 7000,       // longest the "Happy Diwali" clip stays on screen
+  memeDelayMs: 1000,  // the clip starts this long after the blast
+  memeMs: 7000,       // how long the plain "Happy Diwali" card stays if the clip is missing
+  memeMaxMs: 45000,   // safety net: the clip plays to its end, then everything resets; this only matters if it stalls
   video: "/diwali/jethalal.mp4", // drop the clip here; until it exists a plain "Happy Diwali" card is shown
 } as const;
