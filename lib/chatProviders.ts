@@ -108,7 +108,7 @@ function claude(model: string, key: string, timeoutMs: number): Attempt {
 /** The models to try, in order, from whatever keys are set. Empty means the chat is not configured. */
 export function attempts(): Attempt[] {
   const list: Attempt[] = [];
-  const g = process.env.GEMINI_API_KEY;
+  const g = process.env.GEMINI_API_KEY2 || process.env.GEMINI_API_KEY; // GEMINI_API_KEY2 is the working key (the first one belongs to a project with no free tier)
   if (g) {
     const models = [
       process.env.GEMINI_MODEL || "gemini-3.1-flash-lite",
