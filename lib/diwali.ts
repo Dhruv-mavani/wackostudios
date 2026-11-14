@@ -1,5 +1,5 @@
 /** Diwali mode: the floating orange asterisks on the landing screen become diyas, and a sparkler and a sutli bomb can be played with (components/Diwali.tsx). */
-export const SHOW_DIWALI = true; // false = the normal landing page, nothing Diwali is rendered
+export const SHOW_DIWALI = false; // false = the normal landing page, nothing Diwali is rendered
 
 export const DIWALI = {
   /** Diyas on the landing screen: centre as % of the screen, and width in px. `phone` is where it sits on small screens, or false to hide it there, so the landing page is not crowded. */
