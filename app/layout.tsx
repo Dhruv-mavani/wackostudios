@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat, Poppins } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import Loader from "@/components/Loader";
 import { SITE, SITE_URL } from "@/lib/seo";
 import "./globals.css";
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <Loader />
         {children}
+        <Analytics />
         {/* Without JS the loading screen can never finish, so skip it and show the page. */}
         <noscript>
           <style>{`html.is-loading:has(#intro){overflow:auto}html.is-loading:has(#intro) .logo-pulse,html.is-loading:has(#intro) .stage-glow{animation:none}html.is-loading:has(#intro) .stage-bg{opacity:1}html.is-loading:has(#intro) .fw,html.is-loading:has(#intro) main>*{visibility:visible}html.is-loading:has(#intro) :is(.fw,.tagline,.cue){animation-play-state:running}html.is-loading:has(#intro) .rail{opacity:1}html.is-loading:has(#intro) .nav{opacity:1;transform:translateX(-50%)}`}</style>
