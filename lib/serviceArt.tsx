@@ -17,6 +17,26 @@ const fs = (fc: V, sc: V, w: number, x: object = {}) => ({ fill: v(fc), stroke: 
 const WEDGE = "M52.6 2.0L30.4 11.7L40.2 36.3L17.3 26.8L15.2 26.5L6.1 49.4L29.5 59.3L30.4 60.3L7.6 69.8L5.9 71.2L15.4 93.6L40.3 83.8L30.5 108.6L53.3 117.9L64.1 93.5L73.8 116.9L75.2 117.9L97.4 108.5L88.0 85.2L87.9 83.7L111.9 93.6L112.8 93.4L121.9 70.7L97.6 60.1L121.2 50.0L121.9 48.8L112.5 26.3L88.6 36.2L87.7 36.1L97.4 12.0L97.2 11.2L74.5 2.0L64.0 26.4L53.9 2.7Z"; // the logo asterisk, in the same 128 x 120 box the old wedge used
 
 export const SERVICE_ART: Record<string, ReactNode> = {
+  // Skill card: the instruction lines type themselves in, a lightning badge pops and a spark twirls.
+  skill: (
+    <>
+      <g className="pl1"><circle cx="58" cy="62" r="42" style={f("ic")} /></g>
+      <g className="pl2">
+        <rect x="24" y="18" width="64" height="84" rx="10" style={f("ia")} />
+        <rect x="33" y="28" width="26" height="7" rx="3.5" style={f("ib")} />
+        {([[46, 47, 0], [34, 59, 0.25], [40, 71, 0.5], [22, 83, 0.75]] as const).map(([w, y, dl]) => (
+          <rect key={y} className="a-type" x="33" y={y} width={w} height="5" rx="2.5" style={f("bg", { "--d": `${dl}s` })} />
+        ))}
+      </g>
+      <g className="pl1">
+        <g className="a-badge">
+          <circle cx="90" cy="86" r="17" style={fs("ib", "bg", 3)} />
+          <path d="M94 74 L83 88 H90 L87 99 L98 84 H91 Z" style={f("bg")} />
+        </g>
+        <g transform="translate(100 26)"><path className="a-twirl" d="M0 -11 L3 -3 L11 0 L3 3 L0 11 L-3 3 L-11 0 L-3 -3 Z" style={fs("ib", "ib", 2)} /></g>
+      </g>
+    </>
+  ),
   // Phone being filmed: focus brackets snap in, the progress bar fills, REC blinks.
   content: (
     <>

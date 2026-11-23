@@ -62,7 +62,7 @@ export const ATTENTION: Attention[] = [
   // by section
   { say: "Welcome to Wacko Studios! Look around, I'm right here.", mood: "happy", move: "wave", pool: "intro" },
   { say: "New here? I give the quick tour.", mood: "excited", move: "bounce", pool: "intro" },
-  { say: "Eleven services. Tap me and I'll pick one for you.", mood: "excited", move: "bounce", pool: "services" },
+  { say: "Twelve services. Tap me and I'll pick one for you.", mood: "excited", move: "bounce", pool: "services" },
   { say: "Not sure which service you need? Neither am I. Let's chat!", mood: "confused", move: "think", pool: "services" },
   { say: "Reels, ads, AI, websites... choose your chaos.", mood: "wink", move: "talk", pool: "services" },
   { say: "Nice logos, right? Want yours up there?", mood: "wink", move: "bounce", pool: "clients" },

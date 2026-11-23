@@ -9,6 +9,7 @@ export const SERVICES = [
   { n: "Influencer Marketing", d: "The right creators, briefed well, so the audience trusts the message.", c: ["Creator sourcing", "Campaigns", "Reporting"], i: "influencer" },
   { n: "Performance Marketing", d: "Paid campaigns on Meta and Google, tuned weekly against the numbers that matter.", c: ["Meta Ads", "Google Ads", "Analytics"], i: "perf" },
   { n: "Business AI Automation", d: "Chatbots, lead follow-ups and repeat tasks handled by AI, so your business runs on autopilot.", c: ["Chatbots", "Workflows", "AI agents"], i: "ai" },
+  { n: "Custom AI Skills", d: "Tailor-made AI skills that teach your AI tools how your business works: your tone, your process, your checklists.", c: ["Skill design", "Brand voice", "Team training"], i: "skill" },
   { n: "Full Stack Development", d: "Fast websites, landing pages and web apps, designed and built end to end.", c: ["Websites", "Web apps", "Integrations"], i: "dev" },
   { n: "Content Planning", d: "Calendars, themes and scripts mapped out ahead, so posting never turns into panic.", c: ["Calendars", "Scripts", "Strategy"], i: "plan" },
   { n: "Creative Ad Campaigns", d: "Big ideas and bold ads that stop the thumb and earn the click.", c: ["Concepts", "Ad creative", "Launch"], i: "ads" },

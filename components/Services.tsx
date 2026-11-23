@@ -32,7 +32,7 @@ export default function Services() {
             <GoLink className="btn navy" to="#book">Book a 30 minute call</GoLink>
           </div>
         </div>
-        <div className="sv-hud"><span id="svCount">00 / 11</span><div className="bar"><i id="svBar" /></div><span className="nm" id="svName">Services</span></div>
+        <div className="sv-hud"><span id="svCount">{`00 / ${SERVICES.length}`}</span><div className="bar"><i id="svBar" /></div><span className="nm" id="svName">Services</span></div>
       </div>
     </section>
   );
