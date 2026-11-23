@@ -27,17 +27,22 @@ export default function Loader() {
     };
     if (reduced) { open(); return; }
 
-    const wait = Math.max(0, LOAD_MS - performance.now());
-    // Hold briefly for web fonts so the page doesn't build in with fallback text.
-    const fonts = document.fonts?.ready ? Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, wait + 1500))]) : Promise.resolve();
-    tWait = window.setTimeout(() => fonts.then(() => {
-      const pulse = document.querySelector<HTMLElement>(".logo-pulse");
-      if (!pulse) return open();
-      pulse.addEventListener("animationiteration", (e) => { if (e.target === pulse) open(); });
-      tMax = window.setTimeout(open, MAX_WAIT_MS);
-    }), wait);
+    const run = () => {
+      const wait = Math.max(0, LOAD_MS - performance.now());
+      // Hold briefly for web fonts so the page doesn't build in with fallback text.
+      const fonts = document.fonts?.ready ? Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, wait + 1500))]) : Promise.resolve();
+      tWait = window.setTimeout(() => fonts.then(() => {
+        const pulse = document.querySelector<HTMLElement>(".logo-pulse");
+        if (!pulse) return open();
+        pulse.addEventListener("animationiteration", (e) => { if (e.target === pulse) open(); });
+        tMax = window.setTimeout(open, MAX_WAIT_MS);
+      }), wait);
+    };
 
-    return () => { clearTimeout(tWait); clearTimeout(tMax); };
+    // While the opening film plays (html.film-on) the loading screen waits behind it; it starts its own count when the film is done.
+    if (html.classList.contains("film-on")) addEventListener("film:done", run, { once: true }); else run();
+
+    return () => { removeEventListener("film:done", run); clearTimeout(tWait); clearTimeout(tMax); };
   }, []);
 
   return null;

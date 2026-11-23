@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat, Poppins } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import IntroFilm from "@/components/IntroFilm";
 import Loader from "@/components/Loader";
 import { SITE, SITE_URL } from "@/lib/seo";
 import "./globals.css";
@@ -34,8 +35,13 @@ export const viewport: Viewport = { viewportFit: "cover", themeColor: "#113462" 
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en-IN" className={`js is-loading ${poppins.variable} ${montserrat.variable}`}>
+    <html lang="en-IN" className={`js is-loading ${poppins.variable} ${montserrat.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Decides before the first paint whether the opening film plays (home page, once per session, not for reduced motion). See components/IntroFilm.tsx. */}
+        <script dangerouslySetInnerHTML={{ __html: `try{var d=document.documentElement,q=location.search;if(location.pathname==="/"&&!location.hash&&!/[?&]film=0/.test(q)&&(/[?&]film=1/.test(q)||!sessionStorage.getItem("wk-film"))&&!matchMedia("(prefers-reduced-motion: reduce)").matches)d.classList.add("film-on")}catch(e){}` }} />
+      </head>
       <body>
+        <IntroFilm />
         <Loader />
         {children}
         <Analytics />
