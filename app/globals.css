@@ -734,6 +734,11 @@ html.is-loading:has(#intro) .cb{display:none}
 html.film-on .film{display:block;position:fixed;inset:0;z-index:10000;background:#000;overflow:hidden;transition:opacity .95s ease;cursor:pointer}
 html.film-on .film.out{opacity:0;pointer-events:none}
 html.film-on .film.quick{transition-duration:.45s}
+html.film-on .film.land{transition-duration:.38s}
+/* Hand-over: the logo holds still, and its asterisk and name wait until the film's W has become the page's W */
+html.film-on.is-loading:has(#intro) .logo-pulse{animation-play-state:paused}
+html.film-on #logoWrap :is(.slice[data-row="text"],.wedge-fly){transition:opacity .7s ease .1s}
+html.film-on:not(.film-landed) #logoWrap :is(.slice[data-row="text"],.wedge-fly){opacity:0}
 .film video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 /* The vertical cut fills a phone screen and sits centred on squarer screens; the 16:9 cut (.wide) covers wide ones */
 @media(min-aspect-ratio:3/4){.film video:not(.wide){margin:0 auto;width:auto;aspect-ratio:9/16}}
