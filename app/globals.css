@@ -513,9 +513,14 @@ html.is-loading:has(#intro) .rail{opacity:0}
 .reel-fail{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:22px;text-align:center;background:rgba(17,52,98,.86);font-size:14px;z-index:2}
 .reel-fail p{margin:0}
 .reel-fail a{color:var(--orange-lt);font-weight:700;text-decoration:underline}
-.reel-frame.on .reel-play{opacity:0}
-@media(hover:hover){.reel-frame:not(.on):hover .reel-play{opacity:.75}} /* let the silent hover preview show through */
-.reel-frame.on:hover .reel-play,.reel-frame.on .reel-play:focus-visible{opacity:1}
+/* While a reel plays (or previews on hover) nothing covers the middle: the button becomes a small see-through one in the corner,
+   shown only on hover or keyboard focus. Phones show nothing over a playing reel; tapping the video pauses it. */
+.reel-frame.on .reel-play{opacity:0;pointer-events:none}
+.reel-frame.on .reel-play,.reel-frame:hover .reel-play{left:auto;top:auto;right:14px;bottom:14px;width:42px;height:42px;margin:0;background:rgba(8,22,48,.5);color:#fff;box-shadow:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:opacity .25s}
+.reel-frame.on .reel-play svg,.reel-frame:hover .reel-play svg{width:16px;height:16px}
+.reel-frame.on .reel-play:focus-visible{opacity:1;pointer-events:auto}
+@media(hover:hover){.reel-frame:hover .reel-play{opacity:.85;pointer-events:auto}.reel-frame:hover .reel-play:hover{transform:none;opacity:1}}
+@media(hover:none){.reel-frame:hover:not(.on) .reel-play{left:50%;top:50%;right:auto;bottom:auto;width:64px;height:64px;margin:-32px 0 0 -32px;background:var(--orange);color:var(--on-orange);opacity:1;pointer-events:auto}.reel-frame:hover:not(.on) .reel-play svg{width:26px;height:26px}}
 @media(prefers-reduced-motion:reduce){.reel-frame{transition:none}}
 /* Service cards grow if their words need more room (long titles, narrow phones) instead of cutting off the last line or the tags,
    and everything tightens up on small or short screens so a card still fits in the pinned view. */
@@ -769,7 +774,7 @@ html.is-loading:has(#intro) .cb{display:none}
 .sv-flat .sv-copy .lead{display:block}
 .sv-flat .sv-cta{display:inline-flex}
 
-/* r89b */
+/* r90 */
 /* Opening film (components/IntroFilm.tsx): full-screen cover that fades out to reveal the page underneath */
 .film{display:none}
 html.film-on .film{display:block;position:fixed;inset:0;z-index:10000;background:#000;overflow:hidden;transition:opacity .95s ease;cursor:pointer}
