@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { SERVICES } from "@/lib/data";
 import { FOCUS, LOGO_W } from "@/lib/wedge";
 
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -11,7 +10,7 @@ type Marquee = { track: HTMLElement; dir: number; speed: number; x: number | und
 
 /**
  * Drives every scroll-linked effect from a single rAF loop: the intro logo diving into its orange W and becoming the orange next page,
- * the pinned horizontal services reel, stacking work cards, velocity-reactive marquees, the progress rail and
+ * stacking work cards, velocity-reactive marquees, the progress rail and
  * reveal-on-view. It writes styles straight to elements, so the components it touches must not set those styles.
  */
 export default function ScrollEngine() {
@@ -22,21 +21,18 @@ export default function ScrollEngine() {
     const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (RM) root.classList.add("rm");
 
-    let vw = innerWidth, vh = innerHeight, lastY = scrollY, vel = 0, svMax = 0, activeCard = -1, raf = 0;
+    let vw = innerWidth, vh = innerHeight, lastY = scrollY, vel = 0, raf = 0;
 
     const intro = $("#intro"), stage = $("#stage"), logoWrap = $("#logoWrap"), logoArea = $("#logoArea"), apex = $("#apex"), flood = $("#flood");
     const starPath = document.getElementById("starPath") as unknown as SVGElement;
     const tagline = $("#tagline"), cue = $("#cue");
     const fws = $$(".fw"), mWords = $$("#manifesto .mw"), manifesto = $(".manifesto");
-    const sv = $("#services"), svStick = $("#svStick"), svRow = $("#svRow"), cards = $$(".card"), ghost = $("#ghost");
-    const svBar = $("#svBar"), svCount = $("#svCount"), svName = $("#svName");
     const railFill = $("#railFill"), railWedge = $("#railWedge"), bigWedge = $("#bigWedge");
     const wks = $$(".wk");
     const mqs: Marquee[] = $$("[data-mq]").map((track) => ({ track, dir: +(track.dataset.dir ?? -1) || -1, speed: +(track.dataset.speed ?? 0.6) || 0.6, x: undefined, L: 1, glide: 0, steady: track.hasAttribute("data-steady") }));
 
     const measure = () => {
       vw = innerWidth; vh = innerHeight;
-      if (!RM) { svMax = Math.max(0, svRow.offsetWidth - vw); sv.style.height = svStick.offsetHeight + svMax + "px"; }
       mqs.forEach((m) => {
         // The track holds four identical copies, so one loop is a quarter of its width. Use the exact (fractional) used width, not the
         // rounded scrollWidth, so the wrap lands on precisely the same pixel and the loop has no seam. (Unaffected by a rotated parent.)
@@ -130,28 +126,7 @@ export default function ScrollEngine() {
           fws.forEach((f) => { f.style.transform = `translate3d(0,${-p * (+(f.dataset.sp ?? 80) || 80) * 3}px,0)`; });
         }
 
-        /* services reel */
-        const sr = sv.getBoundingClientRect();
-        if (sr.bottom > -50 && sr.top < vh + 50) {
-          const p = svMax ? clamp(-sr.top / svMax) : 0;
-          svRow.style.transform = `translate3d(${-p * svMax}px,0,0)`;
-          svBar.style.transform = `scaleX(${p})`;
-          let best = -1, bd = 1e9;
-          cards.forEach((c, i) => {
-            const r = c.getBoundingClientRect(), d = (r.left + r.width / 2 - vw / 2) / vw, ad = Math.abs(d);
-            c.style.transform = `rotate(${(d * -5).toFixed(2)}deg) scale(${(1 - Math.min(0.09, ad * 0.09)).toFixed(3)})`;
-            if (ad < bd) { bd = ad; best = i; }
-          });
-          if (bd > 0.34) best = -1;
-          if (best !== activeCard) {
-            activeCard = best;
-            cards.forEach((c, i) => c.classList.toggle("on", i === best));
-            const nm = best >= 0 ? cards[best].dataset.name! : "Services";
-            ghost.textContent = nm; svName.textContent = nm;
-            svCount.textContent = String(best + 1).padStart(2, "0") + " / " + SERVICES.length;
-            ghost.classList.remove("pop"); void ghost.offsetWidth; ghost.classList.add("pop");
-          }
-        }
+        /* Services: driven by its own component (ServiceGlass) */
 
         /* work stack */
         wks.forEach((c, i) => {
@@ -187,9 +162,9 @@ export default function ScrollEngine() {
     addEventListener("resize", measure);
     addEventListener("load", measure);
     document.fonts?.ready.then(measure);
-    // Re-measure whenever the reel's own size changes (a card added or removed, a font arriving late), not only on window resize.
+    // Re-measure when the page's size changes (a font arriving late), not only on window resize.
     const ro = new ResizeObserver(measure);
-    ro.observe(svRow);
+    ro.observe(document.body);
     measure();
     raf = requestAnimationFrame(frame);
     return () => {

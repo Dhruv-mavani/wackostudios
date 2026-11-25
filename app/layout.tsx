@@ -47,7 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Analytics />
         {/* Without JS the loading screen can never finish, so skip it and show the page. */}
         <noscript>
-          <style>{`html.is-loading:has(#intro){overflow:auto}html.is-loading:has(#intro) .logo-pulse,html.is-loading:has(#intro) .stage-glow{animation:none}html.is-loading:has(#intro) .stage-bg{opacity:1}html.is-loading:has(#intro) .fw,html.is-loading:has(#intro) main>*{visibility:visible}html.is-loading:has(#intro) :is(.fw,.tagline,.cue){animation-play-state:running}html.is-loading:has(#intro) .rail{opacity:1}html.is-loading:has(#intro) .nav{opacity:1;transform:translateX(-50%)}`}</style>
+          <style>{`html.is-loading:has(#intro){overflow:auto}html.is-loading:has(#intro) .logo-pulse,html.is-loading:has(#intro) .stage-glow{animation:none}html.is-loading:has(#intro) .stage-bg{opacity:1}html.is-loading:has(#intro) .fw,html.is-loading:has(#intro) main>*{visibility:visible}html.is-loading:has(#intro) :is(.fw,.tagline,.cue){animation-play-state:running}html.is-loading:has(#intro) .rail{opacity:1}html.is-loading:has(#intro) .nav{opacity:1;transform:translateX(-50%)}.services{height:auto}.sv-stick{position:relative;height:auto}.sv-grid{display:block;height:auto}.sv-glass,.sv-hud,.sv-word{display:none}.sv-more{position:static;width:auto;height:auto;clip-path:none}.sv-list{display:grid;gap:14px}.sv-copy .lead{display:block}`}</style>
         </noscript>
       </body>
     </html>

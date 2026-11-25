@@ -1,38 +1,42 @@
 import { SERVICES } from "@/lib/data";
-import { SERVICE_ART } from "@/lib/serviceArt";
 import Split from "./Split";
 import { GoLink } from "./Chrome";
+import ServiceGlass from "./ServiceGlass";
 
+/**
+ * Services: a pinned section. Scrolling steps through the services one by one; a bending glass card (ServiceGlass)
+ * turns to show the active one, and the list on the left follows. Every service's text is in the HTML below, so the
+ * section reads fine without JavaScript or WebGL (then it lays the services out as plain cards, `.sv-flat`).
+ */
 export default function Services() {
   return (
-    <section className="services" id="services" aria-label="Services">
-      <div className="sv-stick" id="svStick">
-        <div className="bgword" id="ghost" aria-hidden="true">Services</div>
-        <div className="sv-row" id="svRow">
-          <div className="sv-intro">
+    <section className="services" id="services" aria-label="Services" style={{ "--n": SERVICES.length } as React.CSSProperties}>
+      <div className="sv-stick">
+        <div className="sv-word" aria-hidden="true">Services</div>
+        <div className="sv-grid">
+          <div className="sv-copy">
             <p className="eyebrow">What we do</p>
             <Split parts={["Everything a loud brand needs."]} />
             <p className="lead">From the first idea to the last click, one team plans it, shoots it, designs it, automates it, builds it and runs it.</p>
-            <span className="hint">
-              Keep scrolling{" "}
-              <svg viewBox="0 0 46 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 7h42M37 1l6 6-6 6" /></svg>
-            </span>
+            <ol className="sv-list">
+              {SERVICES.map((s, i) => (
+                <li className={`sv-item${i === 0 ? " on" : ""}`} key={s.n} data-i={i}>
+                  <span className="sv-no">{String(i + 1).padStart(2, "0")}</span>
+                  <h3 className="sv-nm">{s.n}</h3>
+                  <div className="sv-more">
+                    <p>{s.d}</p>
+                    <ul className="chips">{s.c.map((x) => <li key={x}>{x}</li>)}</ul>
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <GoLink className="btn sv-cta" to="#book">Book a 30 minute call</GoLink>
           </div>
-          {SERVICES.map((s, i) => (
-            <article className="card" key={s.n} data-name={s.n}>
-              <div className="no"><span>{String(i + 1).padStart(2, "0")}</span><span>/ {SERVICES.length}</span></div>
-              <svg className="ico" viewBox="0 0 120 120" aria-hidden="true">{SERVICE_ART[s.i]}</svg>
-              <h3>{s.n}</h3>
-              <p>{s.d}</p>
-              <ul className="chips">{s.c.map((x) => <li key={x}>{x}</li>)}</ul>
-            </article>
-          ))}
-          <div className="sv-outro">
-            <h3>…and whatever else your brand <em>needs.</em></h3>
-            <GoLink className="btn navy" to="#book">Book a 30 minute call</GoLink>
+          <div className="sv-glass">
+            <ServiceGlass />
           </div>
         </div>
-        <div className="sv-hud"><span id="svCount">{`00 / ${SERVICES.length}`}</span><div className="bar"><i id="svBar" /></div><span className="nm" id="svName">Services</span></div>
+        <div className="sv-hud" aria-hidden="true"><span id="svCount">{`01 / ${SERVICES.length}`}</span><div className="bar"><i id="svBar" /></div><span className="nm" id="svName">{SERVICES[0].n}</span></div>
       </div>
     </section>
   );
