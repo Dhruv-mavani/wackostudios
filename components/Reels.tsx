@@ -9,6 +9,7 @@ export default function Reels() {
   const videos = useRef<(HTMLVideoElement | null)[]>([]);
   const [playing, setPlaying] = useState<number | null>(null);
   const [failed, setFailed] = useState<Record<number, boolean>>({});
+  const peeking = useRef<number | null>(null); // the reel showing a silent hover preview
   const fail = (i: number) => setFailed((f) => ({ ...f, [i]: true }));
 
   // Pause a reel when it scrolls out of view, so nothing keeps playing (and using data) off screen.
@@ -22,10 +23,32 @@ export default function Reels() {
   const toggle = (i: number) => {
     const v = videos.current[i];
     if (!v) return;
-    if (v.paused) {
+    const fromPreview = peeking.current === i;
+    if (fromPreview || v.paused) {
+      peeking.current = null;
       videos.current.forEach((o, k) => { if (o && k !== i) o.pause(); }); // one reel at a time
+      v.muted = false;
+      if (fromPreview) { v.currentTime = 0; setPlaying(i); } // a click on a preview starts it over, with sound
       v.play().catch((e: unknown) => { if (!(e instanceof DOMException && e.name === "AbortError")) fail(i); });
     } else v.pause();
+  };
+
+  // Mouse only: touch screens have no hover, so a tap goes straight to playing with sound.
+  const peek = (i: number, e: React.PointerEvent) => {
+    const v = videos.current[i];
+    if (e.pointerType !== "mouse" || !v || !v.paused) return;
+    if (videos.current.some((o) => o && !o.paused && !o.muted)) return; // don't compete with a reel being watched
+    peeking.current = i;
+    v.muted = true;
+    v.play().catch(() => {}); // a preview that can't start just leaves the poster
+  };
+
+  const unpeek = (i: number) => {
+    const v = videos.current[i];
+    if (!v || peeking.current !== i) return;
+    peeking.current = null;
+    v.pause();
+    v.load(); // back to the poster
   };
 
   const scroll = (dir: 1 | -1) => {
@@ -50,14 +73,14 @@ export default function Reels() {
       <div className="reels-track" ref={track} tabIndex={0} aria-label="Reels, scroll sideways">
         {REELS.map((r, i) => (
           <figure className="reel rv" key={r.file} style={{ "--d": `${i * 0.08}s` } as React.CSSProperties}>
-            <div className={`reel-frame${playing === i ? " on" : ""}`}>
+            <div className={`reel-frame${playing === i ? " on" : ""}`} onPointerEnter={(e) => peek(i, e)} onPointerLeave={() => unpeek(i)}>
               <video
                 ref={(el) => { videos.current[i] = el; }}
                 poster={`/reels/${r.file}.jpg`}
                 preload="none"
                 playsInline
                 loop
-                onPlay={() => setPlaying(i)}
+                onPlay={() => { if (peeking.current !== i) setPlaying(i); }}
                 onPause={() => setPlaying((p) => (p === i ? null : p))}
                 onError={() => fail(i)}
                 onClick={() => toggle(i)}
