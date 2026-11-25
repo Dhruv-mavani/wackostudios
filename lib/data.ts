@@ -52,6 +52,12 @@ export const CLIENTS = [
   { name: "Siddhi Vinayak", logo: "/clients/siddhi-vinayak.webp", w: 270, h: 220 },
   { name: "YCC (Yuva Champions Cricket)", logo: "/clients/ycc.webp", w: 549, h: 192 },
   { name: "Kurozen Coffee", logo: "/clients/kurozen-coffee.webp", w: 640, h: 164 },
+  { name: "Gaumzi", logo: "/clients/gaumzi.webp", w: 332, h: 192 },
+  { name: "OutAloud Wellness", logo: "/clients/outaloud-wellness.webp", w: 640, h: 162 },
+  { name: "Rich Monkey", logo: "/clients/rich-monkey.webp", w: 192, h: 171 },
+  { name: "Vicky D Parekh", logo: "/clients/vicky-d-parekh.webp", w: 284, h: 192 },
+  { name: "TFM A Bakehouse", logo: "/clients/tfm-bakehouse.webp", w: 469, h: 192 },
+  { name: "Semad Social Group", logo: "/clients/semad-social-group.webp", w: 179, h: 192 },
 ];
 export const TIMES = ["10:00 AM", "11:00 AM", "12:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"];
 
